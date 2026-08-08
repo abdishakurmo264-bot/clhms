@@ -1,0 +1,190 @@
+name: CLHMS Dual-Shift Database Backup & Email Notification Pipeline
+
+on:
+  schedule:
+    # 2 Shift Schedule:
+    # 1. Morning Shift End: 10:00 UTC (01:00 PM EAT)
+    # 2. Afternoon Shift End: 19:00 UTC (10:00 PM EAT)
+    - cron: '0 10,19 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI for testing
+
+env:
+  BACKUP_PREFIX: "clhms_db_backup"
+  PG_DATABASE: ${{ secrets.SUPABASE_DB_NAME || 'postgres' }}
+  PG_HOST: ${{ secrets.SUPABASE_DB_HOST || 'aws-0-eu-west-2.pooler.supabase.com' }}
+  PG_PORT: ${{ secrets.SUPABASE_DB_PORT || '6543' }}
+  PG_USER: ${{ secrets.SUPABASE_DB_USER || 'postgres.kwognmwltcvyjtdsydnx' }}
+  PG_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+  GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+  GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_BACKUP_FOLDER_ID }}
+  ADMIN_EMAIL: ${{ secrets.ADMIN_NOTIFICATION_EMAIL || 'admin@college.edu' }}
+  SMTP_SERVER: ${{ secrets.SMTP_SERVER || 'smtp.gmail.com' }}
+  SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}
+  SMTP_USER: ${{ secrets.SMTP_USER }}
+  SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+
+jobs:
+  dual-shift-backup:
+    name: Supabase PostgreSQL Backup, Google Drive Sync & Email Notification
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: 🚀 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐘 Install PostgreSQL 16 Tools & Python Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-16 gzip curl jq python3 python3-pip
+          pip3 install google-api-python-client google-auth google-auth-httplib2
+
+      - name: 📦 Execute Dual-Shift pg_dump & Compress
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          HOUR_UTC=$(date -u +"%H")
+          if [ "$HOUR_UTC" -lt "15" ]; then
+            SHIFT_TAG="MORNING_SHIFT"
+          else
+            SHIFT_TAG="AFTERNOON_SHIFT"
+          fi
+
+          BACKUP_FILE="${BACKUP_PREFIX}_${SHIFT_TAG}_${TIMESTAMP}.sql.gz"
+          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
+          echo "SHIFT_TAG=${SHIFT_TAG}" >> $GITHUB_ENV
+          echo "BACKUP_FILE=${BACKUP_FILE}" >> $GITHUB_ENV
+
+          echo "Starting dual-shift pg_dump for ${SHIFT_TAG} from Supabase host: ${PG_HOST}..."
+          export PGPASSWORD="${PG_PASSWORD}"
+
+          pg_dump \
+            -h "${PG_HOST}" \
+            -p "${PG_PORT}" \
+            -U "${PG_USER}" \
+            -d "${PG_DATABASE}" \
+            --clean \
+            --if-exists \
+            --no-owner \
+            --no-privileges \
+            --verbose | gzip -9 > "${BACKUP_FILE}"
+
+          FILE_SIZE=$(stat -c%s "${BACKUP_FILE}")
+          echo "BACKUP_SIZE_BYTES=${FILE_SIZE}" >> $GITHUB_ENV
+          echo "Compressed dual-shift backup created: ${BACKUP_FILE} (${FILE_SIZE} bytes)"
+
+      - name: ☁️ Upload Compressed Backup to Google Drive API
+        env:
+          SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          FOLDER_ID: ${{ secrets.GDRIVE_BACKUP_FOLDER_ID }}
+        run: |
+          cat << 'EOF' > upload_gdrive.py
+          import os
+          import json
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+
+          backup_file = os.environ.get("BACKUP_FILE")
+          folder_id = os.environ.get("FOLDER_ID")
+          sa_json = os.environ.get("SERVICE_ACCOUNT_KEY")
+
+          if not sa_json:
+              print("WARNING: GDRIVE_SERVICE_ACCOUNT_JSON secret not set. Skipping real Google Drive upload.")
+              exit(0)
+
+          creds_info = json.loads(sa_json)
+          scopes = ['https://www.googleapis.com/auth/drive.file']
+          creds = service_account.Credentials.from_service_account_info(creds_info, scopes=scopes)
+          drive_service = build('drive', 'v3', credentials=creds)
+
+          file_metadata = {
+              'name': backup_file,
+              'parents': [folder_id] if folder_id else []
+          }
+          media = MediaFileUpload(backup_file, mimetype='application/gzip', resumable=True)
+
+          print(f"Uploading {backup_file} to Google Drive folder {folder_id}...")
+          uploaded_file = drive_service.files().create(
+              body=file_metadata,
+              media_body=media,
+              fields='id, name, size'
+          ).execute()
+
+          print(f"✅ Successfully uploaded to Google Drive! File ID: {uploaded_file.get('id')}")
+          EOF
+
+          python3 upload_gdrive.py
+
+      - name: 📧 Dispatch Email Notification to Administration
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          SMTP_SERVER: ${{ env.SMTP_SERVER }}
+          SMTP_PORT: ${{ env.SMTP_PORT }}
+          SMTP_USER: ${{ env.SMTP_USER }}
+          SMTP_PASSWORD: ${{ env.SMTP_PASSWORD }}
+          ADMIN_EMAIL: ${{ env.ADMIN_EMAIL }}
+        run: |
+          cat << 'EOF' > send_email.py
+          import os
+          import smtplib
+          from email.mime.text import MIMEText
+          from email.mime.multipart import MIMEMultipart
+          from datetime import datetime
+
+          status = os.environ.get("JOB_STATUS", "SUCCESS")
+          shift = os.environ.get("SHIFT_TAG", "MORNING_SHIFT")
+          backup_file = os.environ.get("BACKUP_FILE", "backup.sql.gz")
+          size = os.environ.get("BACKUP_SIZE_BYTES", "0")
+          to_email = os.environ.get("ADMIN_EMAIL", "admin@college.edu")
+
+          smtp_server = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+          smtp_port = int(os.environ.get("SMTP_PORT", 587))
+          smtp_user = os.environ.get("SMTP_USER")
+          smtp_pass = os.environ.get("SMTP_PASSWORD")
+
+          subject = f"[CLHMS Alert] Dual-Shift Database Backup: {shift} - {status}"
+          
+          body = f"""
+          <html>
+          <body style="font-family: Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px;">
+              <div style="max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155;">
+                  <h2 style="color: #38bdf8; margin-top: 0;">CLHMS Dual-Shift Backup Report</h2>
+                  <p>Warbixinta kaydinta maalinlaha ah ee database-ka Supabase PostgreSQL:</p>
+                  <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                      <tr><td style="padding: 8px; border-bottom: 1px solid #334155; color: #94a3b8;">Shift:</td><td style="padding: 8px; border-bottom: 1px solid #334155; font-weight: bold; color: #f8fafc;">{shift}</td></tr>
+                      <tr><td style="padding: 8px; border-bottom: 1px solid #334155; color: #94a3b8;">Xaaladda (Status):</td><td style="padding: 8px; border-bottom: 1px solid #334155; font-weight: bold; color: {'#4ade80' if status == 'success' else '#f87171'};">{status.upper()}</td></tr>
+                      <tr><td style="padding: 8px; border-bottom: 1px solid #334155; color: #94a3b8;">Faylka (File):</td><td style="padding: 8px; border-bottom: 1px solid #334155; font-family: monospace; color: #38bdf8;">{backup_file}</td></tr>
+                      <tr><td style="padding: 8px; border-bottom: 1px solid #334155; color: #94a3b8;">Cabbirka (Size):</td><td style="padding: 8px; border-bottom: 1px solid #334155; color: #f8fafc;">{size} bytes</td></tr>
+                      <tr><td style="padding: 8px; border-bottom: 1px solid #334155; color: #94a3b8;">Waqtiga (UTC):</td><td style="padding: 8px; border-bottom: 1px solid #334155; color: #f8fafc;">{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}</td></tr>
+                  </table>
+                  <div style="margin-top: 20px; padding: 12px; background: #0f172a; border-radius: 8px; border-left: 4px solid #38bdf8;">
+                      <small style="color: #94a3b8;">Nidaamka CLHMS Zero-Host Strategy ($0/Month SaaS Free Tier) • Automated Disaster Recovery.</small>
+                  </div>
+              </div>
+          </body>
+          </html>
+          """
+
+          if smtp_user and smtp_pass:
+              msg = MIMEMultipart('alternative')
+              msg['Subject'] = subject
+              msg['From'] = smtp_user
+              msg['To'] = to_email
+              msg.attach(MIMEText(body, 'html'))
+
+              try:
+                  with smtplib.SMTP(smtp_server, smtp_port) as server:
+                      server.starttls()
+                      server.login(smtp_user, smtp_pass)
+                      server.send_message(msg)
+                  print(f"✅ Notification email successfully sent to {to_email}!")
+              except Exception as e:
+                  print(f"Warning: Could not send email via SMTP: {e}")
+          else:
+              print(f"ℹ️ SMTP credentials not set in secrets. Email payload ready for {to_email}: {subject}")
+          EOF
+
+          python3 send_email.py

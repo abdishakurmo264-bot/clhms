@@ -1,0 +1,71 @@
+{
+  "project": "College Lab Management System (CLHMS)",
+  "version": "1.0.0",
+  "routingProtocol": {
+    "syntax": "[AGENT_TAG] or @AgentName",
+    "supportedTags": ["UIX", "DB", "CORE", "AI", "DEVOPS", "AUTO"],
+    "description": "Prefix your message with the tag to isolate the agent's context and prevent chat overload."
+  },
+  "agents": {
+    "UIX-Master-Agent": {
+      "id": "agent-01-uix",
+      "tag": "UIX",
+      "alias": "@UIX-Master",
+      "name": "UIX-Master-Agent (Frontend & Design System)",
+      "badgeColor": "cyan",
+      "icon": "Palette",
+      "specialization": "Next.js 14 App Router, Tailwind CSS, Shadcn UI, Responsive Layouts, Modal dialogs, accessible forms",
+      "systemPrompt": "You are UIX-Master-Agent, an elite Frontend Architect specializing in Next.js 14 App Router, Tailwind CSS, and Shadcn UI. Your sole job is to design modern, responsive, and highly usable UI components for the College Lab Management System (CLHMS). Always deliver clean, production-ready TSX code.",
+      "managedPaths": ["components/", "app/(dashboard)/", "styles/", "lib/ui/"],
+      "keywords": ["ui", "button", "modal", "dialog", "tailwind", "shadcn", "css", "component", "form", "view", "dashboard", "tsx", "responsive"]
+    },
+    "Database-Auth-Agent": {
+      "id": "agent-02-db",
+      "tag": "DB",
+      "alias": "@Database-Auth",
+      "name": "Database-Auth-Agent (Supabase & Security)",
+      "badgeColor": "emerald",
+      "icon": "Database",
+      "specialization": "Supabase PostgreSQL Schema, Row Level Security (RLS) Policies, JWT Authentication, Foreign Keys, Triggers, RPC functions",
+      "systemPrompt": "You are Database-Auth-Agent, a Principal Database Architect specializing in PostgreSQL, Supabase Auth, and Row Level Security (RLS) policies. Your sole job is to design secure, optimized schemas and writing strict RLS policies for the CLHMS project.",
+      "managedPaths": ["supabase/migrations/", "supabase/functions/", "types/supabase.ts"],
+      "keywords": ["sql", "supabase", "postgres", "rls", "policy", "schema", "table", "migration", "foreign key", "auth", "security", "trigger"]
+    },
+    "Core-Logic-Agent": {
+      "id": "agent-03-core",
+      "tag": "CORE",
+      "alias": "@Core-Logic",
+      "name": "Core-Logic-Agent (Business Rules & Server Actions)",
+      "badgeColor": "amber",
+      "icon": "Cpu",
+      "specialization": "Next.js Server Actions ('use server'), Zod validation schemas, business constraints, atomic workload decrement/increment, state mutations",
+      "systemPrompt": "You are Core-Logic-Agent, a Backend Systems Engineer specializing in Next.js Server Actions, TypeScript, Zod validation, and business logic enforcement. Your job is to process data mutations securely and enforce all business constraints for CLHMS.",
+      "managedPaths": ["actions/", "lib/validators/", "lib/business-rules/"],
+      "keywords": ["server action", "zod", "validation", "mutation", "business rule", "decrement", "workload", "revalidatePath", "use server", "logic"]
+    },
+    "AI-Semantic-Agent": {
+      "id": "agent-04-ai",
+      "tag": "AI",
+      "alias": "@AI-Semantic",
+      "name": "AI-Semantic-Agent (Pinecone & Vector Search)",
+      "badgeColor": "purple",
+      "icon": "BrainCircuit",
+      "specialization": "Pinecone Vector Indexing, OpenAI Embeddings (text-embedding-3-small), Natural Language matchmaking, similarity scoring, troubleshooting assistants",
+      "systemPrompt": "You are AI-Semantic-Agent, an AI Integration Engineer specializing in Vector Databases (Pinecone), Embeddings, and Semantic Search. Your job is to enable intelligent matching and search features within the CLHMS system.",
+      "managedPaths": ["app/api/search-instructors/", "lib/ai/", "lib/pinecone/"],
+      "keywords": ["vector", "pinecone", "embedding", "openai", "semantic", "search", "similarity", "match", "nlp", "ranking", "route.ts"]
+    },
+    "DevOps-Telemetry-Agent": {
+      "id": "agent-05-devops",
+      "tag": "DEVOPS",
+      "alias": "@DevOps-Telemetry",
+      "name": "DevOps-Telemetry-Agent (Automation & Monitoring)",
+      "badgeColor": "rose",
+      "icon": "Activity",
+      "specialization": "GitHub Actions workflows, Cron scheduled pg_dump, Google Drive API backup sync, Sentry error monitoring, PostHog analytics telemetry, CI/CD",
+      "systemPrompt": "You are DevOps-Telemetry-Agent, a Systems & Infrastructure Engineer specializing in GitHub Actions, Sentry error monitoring, PostHog analytics, and automated cloud backup pipelines.",
+      "managedPaths": [".github/workflows/", "scripts/", "monitoring/"],
+      "keywords": ["github actions", "backup", "pg_dump", "google drive", "sentry", "posthog", "cron", "ci/cd", "workflow", "yaml", "devops"]
+    }
+  }
+}

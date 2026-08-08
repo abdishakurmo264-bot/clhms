@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="so" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CLHMS - Mobile Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              500: '#06b6d4',
+              600: '#0891b2',
+              900: '#164e63',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #020617;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .animate-pulse-slow {
+      animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white pb-20">
+
+  <!-- 1. TOP MOBILE HEADER -->
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-950/60 text-sm">
+        CL
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5 font-extrabold text-sm tracking-tight text-white">
+          <span>CLHMS Mobile</span>
+          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/40">v1.0</span>
+        </div>
+        <div class="text-[10px] text-emerald-400 flex items-center gap-1">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Supabase Live Connected ($0/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Shift Pill -->
+    <div class="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full text-[10px] text-amber-300 font-medium">
+      <span>🌅 Subax: 07:00 AM EAT</span>
+    </div>
+  </header>
+
+  <!-- 2. PHASE SWITCHER TABS (MOBILE TOUCH OPTIMIZED) -->
+  <div class="bg-slate-950/90 border-b border-slate-800/80 px-3 py-2 overflow-x-auto flex items-center gap-1.5 no-scrollbar">
+    <button onclick="switchTab('phase1')" id="tab-btn-phase1" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-cyan-600 text-white shadow-md">
+      Phase 1: Shift & Audit
+    </button>
+    <button onclick="switchTab('phase2')" id="tab-btn-phase2" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-slate-200">
+      Phase 2: Workload (+1/-1)
+    </button>
+    <button onclick="switchTab('phase3')" id="tab-btn-phase3" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-slate-200">
+      Phase 3: Realtime & AI
+    </button>
+    <button onclick="switchTab('phase4')" id="tab-btn-phase4" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-slate-200">
+      Phase 4: UAT Launch
+    </button>
+  </div>
+
+  <!-- 3. MAIN INTERACTIVE CONTENT AREA -->
+  <main class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: PHASE 1 (SHIFT OVERVIEW & DAILY AUDIT MODAL TRIGGER) -->
+    <!-- ============================================================== -->
+    <section id="view-phase1" class="tab-view space-y-4">
+      <!-- Quick Action: Launch Daily Audit Modal -->
+      <div class="p-4 rounded-2xl bg-gradient-to-br from-cyan-950/60 via-slate-900 to-slate-950 border border-cyan-500/40 shadow-xl space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Daily Shift Audit Form</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-600/40 font-bold">MANDATORY</span>
+        </div>
+        <p class="text-xs text-slate-300">
+          Macallinka lab-ku wuxuu xaqiijinayaa xaaladda hardware-ka bilowga iyo dhammaadka shift-ka.
+        </p>
+        <button onclick="openAuditModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-950/60 flex items-center justify-center gap-2">
+          <span>✨ Bilow Daily Audit Form (Touch Here)</span>
+        </button>
+      </div>
+
+      <!-- Live Audit Banner Feedback -->
+      <div id="audit-feedback-banner" class="hidden p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 text-xs font-semibold flex items-center justify-between">
+        <span id="audit-feedback-text">Audit-ka si guul leh ayaa loo gudbiyay!</span>
+        <button onclick="document.getElementById('audit-feedback-banner').classList.add('hidden')" class="text-xs opacity-70">✕</button>
+      </div>
+
+      <!-- Shift Instructors Load & Status Cards -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">On-Duty Lab Teachers</h3>
+          <span class="text-[10px] text-cyan-400 font-mono">Live Pulses</span>
+        </div>
+
+        <!-- Teacher Card 1 -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm text-white">Eng. Bilal Axmed</span>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  ON-DUTY
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-400">Software & Web Lab (Morning Shift)</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/40">PROGRAMMING</span>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Active Load:</span>
+              <span class="font-bold text-cyan-300">2 / 4 Classes</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+              <div class="bg-cyan-500 h-full rounded-full" style="width: 50%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teacher Card 2 -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-sm text-white">Eng. Sacdiya Maxamuud</span>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  ON-DUTY
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-400">Cisco BGP & Network Lab (Afternoon)</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800/40">TECHNICAL</span>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Active Load:</span>
+              <span class="font-bold text-emerald-300">1 / 4 Classes</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+              <div class="bg-emerald-500 h-full rounded-full" style="width: 25%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Physical Hardware Inventory -->
+      <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white">Live Hardware Inventory</h3>
+          <span class="text-[10px] text-slate-400 font-mono">8 Assets in Supabase</span>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Dell OptiPlex 7090 PC</div>
+              <div class="text-[10px] text-slate-400">LAB-101 (Programming)</div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Cisco 2901 ISR Router</div>
+              <div class="text-[10px] text-slate-400">LAB-204 (Cisco Networks)</div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Catalyst 2960-X Switch</div>
+              <div class="text-[10px] text-slate-400">LAB-204 (Port 12 Alert)</div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-950 text-rose-300 border border-rose-600/40 animate-pulse">MAINTENANCE</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: PHASE 2 (WORKLOAD LIFECYCLE & COURSE PUBLISHING) -->
+    <!-- ============================================================== -->
+    <section id="view-phase2" class="tab-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300">Phase 2: Course Publishing & Workload</h3>
+        <p class="text-xs text-slate-300">
+          Marka fadhiga la xilsaaro macallinka wuxuu kordhaa <strong>+1 Load</strong>, marka uu dhameeyana wuxuu dhimmaa <strong>-1 Load</strong>.
+        </p>
+      </div>
+
+      <!-- Interactive Session Card Demo -->
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-xs font-bold text-white">NET 401: Cisco BGP Routing</span>
+            <p class="text-[11px] text-slate-400">Req: Cisco Routers, Switches, Patch Cables</p>
+          </div>
+          <span id="demo-session-badge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-600/40">
+            IN-PROGRESS
+          </span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs flex items-center justify-between">
+          <span class="text-slate-400">Assigned Teacher:</span>
+          <span class="font-bold text-white">Eng. Sacdiya Maxamuud</span>
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-400">Sacdiya's Live Load:</span>
+            <span id="demo-teacher-load-text" class="font-bold text-cyan-300">1 / 4 Classes</span>
+          </div>
+          <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+            <div id="demo-teacher-load-bar" class="bg-cyan-500 h-full rounded-full transition-all duration-300" style="width: 25%;"></div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button onclick="toggleSessionComplete()" id="demo-complete-btn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-1.5">
+          <span>✅ Dhammee Fadhiga (-1 Load Decrement)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: PHASE 3 (REALTIME NOTICEBOARD & AI TROUBLESHOOTER) -->
+    <!-- ============================================================== -->
+    <section id="view-phase3" class="tab-view hidden space-y-4">
+      <!-- Realtime Noticeboard -->
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <h3 class="text-xs font-bold text-white">Supabase Realtime Noticeboard</h3>
+          </div>
+          <button onclick="simulateRealtimeAlert()" class="px-2 py-1 rounded-lg bg-cyan-600 text-white text-[10px] font-bold">
+            + Dir Alert
+          </button>
+        </div>
+
+        <div id="notice-feed" class="space-y-2 text-xs">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white">Shift-ka Galabta: Cisco BGP Transit Labs</span>
+              <span class="px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800 text-[9px] font-bold">URGENT</span>
+            </div>
+            <p class="text-slate-400 text-[11px]">Dhammaan macalimiinta galabta fadlan hubiya in patch cables-ku diyaar yihiin.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Hardware Troubleshooter -->
+      <div class="p-4 rounded-2xl bg-slate-900 border border-amber-500/40 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>⚡ AI Hardware Troubleshooter</span>
+          </h3>
+          <span class="text-[9px] font-mono text-amber-300 px-1.5 py-0.5 rounded bg-amber-950 border border-amber-700/40">NLP AI</span>
+        </div>
+
+        <p class="text-xs text-slate-400">Dooro cilad hardware si aad u hesho xalka tallaabo-tallaabo ah:</p>
+
+        <div class="grid grid-cols-1 gap-1.5">
+          <button onclick="showAISolution('amber')" class="p-2 rounded-xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 text-left text-xs text-slate-200">
+            • Switch ports are blinking amber (STP Loop)
+          </button>
+          <button onclick="showAISolution('cisco')" class="p-2 rounded-xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 text-left text-xs text-slate-200">
+            • Cisco 2901 stuck in ROMMON prompt
+          </button>
+          <button onclick="showAISolution('ram')" class="p-2 rounded-xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 text-left text-xs text-slate-200">
+            • Dell PC power button blinking amber (RAM error)
+          </button>
+        </div>
+
+        <!-- AI Solution Box -->
+        <div id="ai-solution-box" class="hidden p-3.5 rounded-xl bg-slate-950 border border-amber-500/50 space-y-2 text-xs">
+          <div class="font-bold text-amber-300" id="ai-solution-title">Xalka Ciladda:</div>
+          <div class="text-slate-300 space-y-1 text-[11px]" id="ai-solution-steps"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: PHASE 4 (UAT LAUNCH & AUTOMATED TEST SIGN-OFF) -->
+    <!-- ============================================================== -->
+    <section id="view-phase4" class="tab-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Phase 4: UAT Launch Sign-Off</h3>
+          <span class="text-[10px] font-bold text-emerald-400">100% Passed</span>
+        </div>
+        <p class="text-xs text-slate-300">
+          Xaqiijinta $0/mo Free Tier Strategy, Automated 00:00 UTC Backups, iyo Health API.
+        </p>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Daily Backup Workflow</div>
+            <div class="text-[10px] text-slate-400">00:00 UTC pg_dump ➔ Google Drive</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">ACTIVE</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Server Overhead Cost</div>
+            <div class="text-[10px] text-slate-400">Vercel + Supabase + GitHub Free Tier</div>
+          </div>
+          <span class="font-bold text-emerald-400 text-sm">$0.00 / mo</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Health API Response</div>
+            <div class="text-[10px] text-slate-400">Database latency: 2ms</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">200 OK</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: DAILY HARDWARE AUDIT (COMPLETE / INCOMPLETE TOGGLE) -->
+  <!-- ============================================================== -->
+  <div id="audit-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-sm text-white">Daily Hardware Audit</h3>
+          <p class="text-[10px] text-slate-400">LAB-204 (Cisco Networks)</p>
+        </div>
+        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <!-- Status Buttons -->
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold text-slate-300">Xaaladda Audit-ka (Status) *</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="selectAuditStatus('COMPLETE')" id="btn-status-complete" class="p-3 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 text-xs font-bold">
+            ✓ COMPLETE
+          </button>
+          <button type="button" onclick="selectAuditStatus('INCOMPLETE')" id="btn-status-incomplete" class="p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold">
+            ⚠ INCOMPLETE
+          </button>
+        </div>
+      </div>
+
+      <!-- Conditional Mandatory Reason (Shown only when INCOMPLETE) -->
+      <div id="incomplete-reason-container" class="hidden space-y-1.5">
+        <label class="block text-[11px] font-semibold text-rose-300">
+          Sababta Audit-ku u Dhammaystirmi Waayay (Mandatory) *
+        </label>
+        <textarea id="incomplete-reason-input" rows="3" placeholder="Sharax qalabka ciladaysan (tusaale: PC-04 ma shaqaynayo)..." class="w-full p-2.5 rounded-xl bg-slate-950 border border-rose-800 text-xs text-white placeholder-slate-500 focus:outline-none"></textarea>
+        <div id="modal-validation-error" class="hidden text-[10px] text-rose-400 font-medium">Fadlan qor sababta (ugu yaraan 10 xaraf).</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeAuditModal()" class="px-3 py-2 rounded-xl text-xs text-slate-400">Ka noqo</button>
+        <button onclick="submitDailyAudit()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg">
+          Gudbi Audit-ka
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let currentTab = 'phase1';
+    let currentAuditStatus = 'COMPLETE';
+    let isSessionCompleted = false;
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+      document.getElementById('view-' + tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-600', 'text-white', 'shadow-md');
+        btn.classList.add('text-slate-400');
+      });
+
+      const activeBtn = document.getElementById('tab-btn-' + tabId);
+      activeBtn.classList.add('bg-cyan-600', 'text-white', 'shadow-md');
+      activeBtn.classList.remove('text-slate-400');
+    }
+
+    function openAuditModal() {
+      document.getElementById('audit-modal').classList.remove('hidden');
+      document.getElementById('audit-modal').classList.add('flex');
+    }
+
+    function closeAuditModal() {
+      document.getElementById('audit-modal').classList.add('hidden');
+      document.getElementById('audit-modal').classList.remove('flex');
+    }
+
+    function selectAuditStatus(status) {
+      currentAuditStatus = status;
+      const btnComplete = document.getElementById('btn-status-complete');
+      const btnIncomplete = document.getElementById('btn-status-incomplete');
+      const reasonContainer = document.getElementById('incomplete-reason-container');
+
+      if (status === 'COMPLETE') {
+        btnComplete.className = 'p-3 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 text-xs font-bold';
+        btnIncomplete.className = 'p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold';
+        reasonContainer.classList.add('hidden');
+      } else {
+        btnComplete.className = 'p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold';
+        btnIncomplete.className = 'p-3 rounded-xl border border-rose-500 bg-rose-950/40 text-rose-300 text-xs font-bold';
+        reasonContainer.classList.remove('hidden');
+      }
+    }
+
+    function submitDailyAudit() {
+      const reasonInput = document.getElementById('incomplete-reason-input').value;
+      const errorDiv = document.getElementById('modal-validation-error');
+
+      if (currentAuditStatus === 'INCOMPLETE' && (!reasonInput || reasonInput.trim().length < 10)) {
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      errorDiv.classList.add('hidden');
+      closeAuditModal();
+
+      const banner = document.getElementById('audit-feedback-banner');
+      const text = document.getElementById('audit-feedback-text');
+      banner.classList.remove('hidden');
+
+      if (currentAuditStatus === 'INCOMPLETE') {
+        banner.className = 'p-3.5 rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-200 text-xs font-semibold flex items-center justify-between';
+        text.innerText = '⚠ Audit Status: INCOMPLETE (Digniin loo diray Lab Head-ka)! Sabab: ' + reasonInput;
+      } else {
+        banner.className = 'p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 text-xs font-semibold flex items-center justify-between';
+        text.innerText = '✓ Audit Status: COMPLETE (Qalabku wuu hagaagsan yahay)!';
+      }
+    }
+
+    function toggleSessionComplete() {
+      const badge = document.getElementById('demo-session-badge');
+      const text = document.getElementById('demo-teacher-load-text');
+      const bar = document.getElementById('demo-teacher-load-bar');
+      const btn = document.getElementById('demo-complete-btn');
+
+      if (!isSessionCompleted) {
+        badge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40';
+        badge.innerText = 'COMPLETED';
+        text.innerText = '0 / 4 Classes (Capacity Restored)';
+        text.className = 'font-bold text-emerald-400';
+        bar.style.width = '0%';
+        btn.className = 'w-full py-2.5 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs shadow cursor-not-allowed';
+        btn.innerText = 'Fadhigu Wuu Dhamaaday (-1 Load Done)';
+        btn.disabled = true;
+        isSessionCompleted = true;
+      }
+    }
+
+    function simulateRealtimeAlert() {
+      const feed = document.getElementById('notice-feed');
+      const newCard = document.createElement('div');
+      newCard.className = 'p-3 rounded-xl bg-slate-950 border border-cyan-500/60 space-y-1 animate-in fade-in';
+      newCard.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-cyan-300">Ogeysiis Cusub (Realtime)</span>
+          <span class="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-bold">LIVE</span>
+        </div>
+        <p class="text-slate-300 text-[11px]">Lab-ka 101 waxaa lagu daray 10 Dell OptiPlex PCs oo cusub.</p>
+      `;
+      feed.prepend(newCard);
+    }
+
+    function showAISolution(type) {
+      const box = document.getElementById('ai-solution-box');
+      const title = document.getElementById('ai-solution-title');
+      const steps = document.getElementById('ai-solution-steps');
+      box.classList.remove('hidden');
+
+      if (type === 'amber') {
+        title.innerText = 'Cisco Catalyst Switch Port Amber (STP Loop Detection):';
+        steps.innerHTML = `
+          <div>1. Ka saar patch cable-ka keenay loopback-ka.</div>
+          <div>2. Gal switch console: <code class="text-cyan-400">show spanning-tree blockedports</code>.</div>
+          <div>3. Dekedda ku samee <code class="text-cyan-400">shutdown</code> ka dibna <code class="text-cyan-400">no shutdown</code>.</div>
+        `;
+      } else if (type === 'cisco') {
+        title.innerText = 'Cisco 2901 Router ROMMON Mode Recovery:';
+        steps.innerHTML = `
+          <div>1. Ku xidh console cable (PuTTY speed 9600).</div>
+          <div>2. Hubi flash-ka: <code class="text-cyan-400">dir flash:</code>.</div>
+          <div>3. Boot-garee IOS-ka: <code class="text-cyan-400">boot flash:c2900-universalk9-mz.bin</code>.</div>
+        `;
+      } else {
+        title.innerText = 'Dell OptiPlex RAM Reseating & Diagnostics:';
+        steps.innerHTML = `
+          <div>1. Fur daboolka PC-ga oo soo bixi labada DDR4 RAM sticks.</div>
+          <div>2. Ku nadiifi baalasha dahabka ah maro qalalan.</div>
+          <div>3. Dib ugu riix ilaa ay ka guxaan (Click sound).</div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
