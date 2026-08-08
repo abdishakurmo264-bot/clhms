@@ -205,7 +205,10 @@ export const LabCoursePublishingWizard: React.FC<LabCoursePublishingWizardProps>
     startTransition(async () => {
       if (!session.lab_teacher_id) return;
 
-      await completeLabSession(session.id, session.lab_teacher_id);
+      await completeLabSession({
+        sessionId: session.id,
+        instructorId: session.lab_teacher_id,
+      });
 
       // Update Session Status to COMPLETED
       setSessions((prev) =>

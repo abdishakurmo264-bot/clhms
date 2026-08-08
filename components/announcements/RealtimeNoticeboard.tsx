@@ -140,7 +140,7 @@ export const RealtimeNoticeboard: React.FC<RealtimeNoticeboardProps> = ({
       // Insert into live Supabase table
       const { data, error } = await supabase
         .from("announcements")
-        .insert(newAnn)
+        .insert([newAnn] as any)
         .select()
         .single();
 

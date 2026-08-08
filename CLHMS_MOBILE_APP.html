@@ -3,25 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CLHMS - Mobile Preview</title>
+  <title>CLHMS - PRD 1.1 College Lab Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#ecfeff',
-              500: '#06b6d4',
-              600: '#0891b2',
-              900: '#164e63',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
     body {
       background-color: #020617;
@@ -29,510 +12,313 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    .animate-pulse-slow {
-      animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-    .glass-card {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(51, 65, 85, 0.6);
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white pb-20">
 
-  <!-- 1. TOP MOBILE HEADER -->
-  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-950/60 text-sm">
+      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg text-sm">
         CL
       </div>
       <div>
-        <div class="flex items-center gap-1.5 font-extrabold text-sm tracking-tight text-white">
-          <span>CLHMS Mobile</span>
-          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/40">v1.0</span>
+        <div class="font-extrabold text-sm text-white flex items-center gap-1.5">
+          <span>CLHMS Portal</span>
+          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 border border-purple-800/40">PRD 1.1</span>
         </div>
-        <div class="text-[10px] text-emerald-400 flex items-center gap-1">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Supabase Live Connected ($0/mo)</span>
-        </div>
+        <div class="text-[10px] text-emerald-400">Supabase Live Connected • 6 Roles Active</div>
       </div>
     </div>
 
     <!-- Active Shift Pill -->
-    <div class="flex items-center gap-1 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full text-[10px] text-amber-300 font-medium">
-      <span>🌅 Subax: 07:00 AM EAT</span>
+    <div class="bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full text-[10px] text-amber-300 font-medium">
+      <span>🌅 Morning Shift (Subax)</span>
     </div>
   </header>
 
-  <!-- 2. PHASE SWITCHER TABS (MOBILE TOUCH OPTIMIZED) -->
-  <div class="bg-slate-950/90 border-b border-slate-800/80 px-3 py-2 overflow-x-auto flex items-center gap-1.5 no-scrollbar">
-    <button onclick="switchTab('phase1')" id="tab-btn-phase1" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-cyan-600 text-white shadow-md">
-      Phase 1: Shift & Audit
-    </button>
-    <button onclick="switchTab('phase2')" id="tab-btn-phase2" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-slate-200">
-      Phase 2: Workload (+1/-1)
-    </button>
-    <button onclick="switchTab('phase3')" id="tab-btn-phase3" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-slate-200">
-      Phase 3: Realtime & AI
-    </button>
-    <button onclick="switchTab('phase4')" id="tab-btn-phase4" class="tab-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-slate-200">
-      Phase 4: UAT Launch
-    </button>
+  <!-- ROLE SWITCHER BAR (PRD Section 10 & 11) -->
+  <div class="bg-slate-950/90 border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+    <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider shrink-0">Select Role:</span>
+    <div class="flex items-center gap-1.5">
+      <button onclick="switchRole('ADMIN')" id="role-btn-ADMIN" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold bg-purple-600 text-white whitespace-nowrap shadow">
+        👑 Admin
+      </button>
+      <button onclick="switchRole('LAB_CHAIRMAN')" id="role-btn-LAB_CHAIRMAN" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
+        🛡️ Lab Chairman
+      </button>
+      <button onclick="switchRole('LAB_TEACHER')" id="role-btn-LAB_TEACHER" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
+        👨‍🏫 Lab Teacher
+      </button>
+      <button onclick="switchRole('SUBJECT_TEACHER')" id="role-btn-SUBJECT_TEACHER" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
+        📚 Subject Teacher
+      </button>
+      <button onclick="switchRole('INVENTORY_OFFICER')" id="role-btn-INVENTORY_OFFICER" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
+        🛠️ Inventory
+      </button>
+      <button onclick="switchRole('COLLEGE_MANAGEMENT')" id="role-btn-COLLEGE_MANAGEMENT" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
+        📊 Management
+      </button>
+    </div>
   </div>
 
-  <!-- 3. MAIN INTERACTIVE CONTENT AREA -->
-  <main class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+  <!-- MAIN VIEW -->
+  <main class="p-4 max-w-lg mx-auto w-full space-y-4 flex-1">
 
-    <!-- ============================================================== -->
-    <!-- TAB 1: PHASE 1 (SHIFT OVERVIEW & DAILY AUDIT MODAL TRIGGER) -->
-    <!-- ============================================================== -->
-    <section id="view-phase1" class="tab-view space-y-4">
-      <!-- Quick Action: Launch Daily Audit Modal -->
-      <div class="p-4 rounded-2xl bg-gradient-to-br from-cyan-950/60 via-slate-900 to-slate-950 border border-cyan-500/40 shadow-xl space-y-3">
+    <!-- 1. ADMIN ROLE DASHBOARD -->
+    <div id="view-ADMIN" class="role-view space-y-4">
+      <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/40 space-y-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Daily Shift Audit Form</span>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-600/40 font-bold">MANDATORY</span>
+          <span class="text-xs font-bold uppercase text-purple-300">System Admin Control Suite</span>
+          <span class="text-[10px] font-mono bg-purple-950 px-2 py-0.5 rounded text-purple-300">Full Access</span>
         </div>
         <p class="text-xs text-slate-300">
-          Macallinka lab-ku wuxuu xaqiijinayaa xaaladda hardware-ka bilowga iyo dhammaadka shift-ka.
-        </p>
-        <button onclick="openAuditModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-950/60 flex items-center justify-center gap-2">
-          <span>✨ Bilow Daily Audit Form (Touch Here)</span>
-        </button>
-      </div>
-
-      <!-- Live Audit Banner Feedback -->
-      <div id="audit-feedback-banner" class="hidden p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 text-xs font-semibold flex items-center justify-between">
-        <span id="audit-feedback-text">Audit-ka si guul leh ayaa loo gudbiyay!</span>
-        <button onclick="document.getElementById('audit-feedback-banner').classList.add('hidden')" class="text-xs opacity-70">✕</button>
-      </div>
-
-      <!-- Shift Instructors Load & Status Cards -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">On-Duty Lab Teachers</h3>
-          <span class="text-[10px] text-cyan-400 font-mono">Live Pulses</span>
-        </div>
-
-        <!-- Teacher Card 1 -->
-        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
-          <div class="flex items-start justify-between">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-sm text-white">Eng. Bilal Axmed</span>
-                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  ON-DUTY
-                </span>
-              </div>
-              <p class="text-[11px] text-slate-400">Software & Web Lab (Morning Shift)</p>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/40">PROGRAMMING</span>
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between text-[11px]">
-              <span class="text-slate-400">Active Load:</span>
-              <span class="font-bold text-cyan-300">2 / 4 Classes</span>
-            </div>
-            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-              <div class="bg-cyan-500 h-full rounded-full" style="width: 50%;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Teacher Card 2 -->
-        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
-          <div class="flex items-start justify-between">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-sm text-white">Eng. Sacdiya Maxamuud</span>
-                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  ON-DUTY
-                </span>
-              </div>
-              <p class="text-[11px] text-slate-400">Cisco BGP & Network Lab (Afternoon)</p>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800/40">TECHNICAL</span>
-          </div>
-
-          <div class="space-y-1">
-            <div class="flex items-center justify-between text-[11px]">
-              <span class="text-slate-400">Active Load:</span>
-              <span class="font-bold text-emerald-300">1 / 4 Classes</span>
-            </div>
-            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-              <div class="bg-emerald-500 h-full rounded-full" style="width: 25%;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Live Physical Hardware Inventory -->
-      <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white">Live Hardware Inventory</h3>
-          <span class="text-[10px] text-slate-400 font-mono">8 Assets in Supabase</span>
-        </div>
-
-        <div class="space-y-2 text-xs">
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="font-bold text-white">Dell OptiPlex 7090 PC</div>
-              <div class="text-[10px] text-slate-400">LAB-101 (Programming)</div>
-            </div>
-            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="font-bold text-white">Cisco 2901 ISR Router</div>
-              <div class="text-[10px] text-slate-400">LAB-204 (Cisco Networks)</div>
-            </div>
-            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="font-bold text-white">Catalyst 2960-X Switch</div>
-              <div class="text-[10px] text-slate-400">LAB-204 (Port 12 Alert)</div>
-            </div>
-            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-950 text-rose-300 border border-rose-600/40 animate-pulse">MAINTENANCE</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- TAB 2: PHASE 2 (WORKLOAD LIFECYCLE & COURSE PUBLISHING) -->
-    <!-- ============================================================== -->
-    <section id="view-phase2" class="tab-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 space-y-2">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-300">Phase 2: Course Publishing & Workload</h3>
-        <p class="text-xs text-slate-300">
-          Marka fadhiga la xilsaaro macallinka wuxuu kordhaa <strong>+1 Load</strong>, marka uu dhameeyana wuxuu dhimmaa <strong>-1 Load</strong>.
+          Admin-ku wuxuu abuuraa users-ka, beddelaa roles-ka, oo kormeeraa Audit Logs-ka.
         </p>
       </div>
 
-      <!-- Interactive Session Card Demo -->
+      <!-- Users List -->
       <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-        <div class="flex items-start justify-between">
-          <div>
-            <span class="text-xs font-bold text-white">NET 401: Cisco BGP Routing</span>
-            <p class="text-[11px] text-slate-400">Req: Cisco Routers, Switches, Patch Cables</p>
-          </div>
-          <span id="demo-session-badge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-600/40">
-            IN-PROGRESS
-          </span>
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white">Staff Users Directory (PRD Section 12)</h3>
+          <button onclick="openAddUserModal()" class="px-2.5 py-1 rounded-lg bg-purple-600 text-white text-[10px] font-bold">+ Create User</button>
         </div>
 
-        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs flex items-center justify-between">
-          <span class="text-slate-400">Assigned Teacher:</span>
-          <span class="font-bold text-white">Eng. Sacdiya Maxamuud</span>
+        <div class="space-y-2 text-xs" id="admin-users-list">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">System Administrator</div>
+              <div class="text-[10px] text-slate-400">admin@college.edu • ID: ADM-001</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800">ADMIN</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Dr. Cabdiraxmaan Cali (Chairman)</div>
+              <div class="text-[10px] text-slate-400">chairman@college.edu • ID: CHM-001</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950 text-blue-300 border border-blue-800">CHAIRMAN</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Eng. Sacdiya Maxamuud</div>
+              <div class="text-[10px] text-slate-400">teacher1@college.edu • ID: LT-001</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">LAB TEACHER</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. LAB CHAIRMAN DASHBOARD -->
+    <div id="view-LAB_CHAIRMAN" class="role-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-blue-950/40 border border-blue-500/40 space-y-2">
+        <span class="text-xs font-bold uppercase text-blue-300">Lab Chairman Operations</span>
+        <p class="text-xs text-slate-300">
+          U wareeji fadhiyada macallinka haysta culayska ugu yar (Available Low-Load First).
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white">Pending Course Request</h3>
+          <span class="px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 text-[9px] font-bold">PENDING</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-2">
+          <div class="font-bold text-white">CSC 312: Database Systems & PostgreSQL</div>
+          <div class="text-[11px] text-slate-400">Lecturer: Ust. Cali Nuur • Req: 25 Workstations</div>
+          <div class="text-[10px] text-cyan-400 font-mono truncate">Resource: https://drive.google.com/folder-db-lab</div>
+
+          <button onclick="assignChairmanSession()" id="chairman-assign-btn" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">
+            Xilsaar Eng. Sacdiya Maxamuud (+1 Load)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. LAB TEACHER DASHBOARD -->
+    <div id="view-LAB_TEACHER" class="role-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
+        <span class="text-xs font-bold uppercase text-emerald-300">Lab Teacher Execution & Audit</span>
+        <p class="text-xs text-slate-300">
+          Fuli Daily Hardware Audit oo dhammee fadhiga marka casharku dhamaado.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white">NET 401: Cisco BGP Routing</span>
+          <span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 text-[9px] font-bold" id="teacher-session-badge">IN-PROGRESS</span>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/40 text-xs flex items-center justify-between">
+          <span class="text-indigo-300 text-[11px]">Lab Sheet Link:</span>
+          <a href="https://github.com/cisco-labs" target="_blank" class="text-cyan-400 underline font-mono text-[10px]">Furo Link-ga</a>
         </div>
 
         <div class="space-y-1">
           <div class="flex items-center justify-between text-xs">
             <span class="text-slate-400">Sacdiya's Live Load:</span>
-            <span id="demo-teacher-load-text" class="font-bold text-cyan-300">1 / 4 Classes</span>
+            <span class="font-bold text-cyan-300" id="teacher-load-text">1 / 4 Classes</span>
           </div>
           <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-            <div id="demo-teacher-load-bar" class="bg-cyan-500 h-full rounded-full transition-all duration-300" style="width: 25%;"></div>
+            <div class="bg-cyan-500 h-full rounded-full transition-all duration-300" id="teacher-load-bar" style="width: 25%;"></div>
           </div>
         </div>
 
-        <!-- Action Button -->
-        <button onclick="toggleSessionComplete()" id="demo-complete-btn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-1.5">
-          <span>✅ Dhammee Fadhiga (-1 Load Decrement)</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- TAB 3: PHASE 3 (REALTIME NOTICEBOARD & AI TROUBLESHOOTER) -->
-    <!-- ============================================================== -->
-    <section id="view-phase3" class="tab-view hidden space-y-4">
-      <!-- Realtime Noticeboard -->
-      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <h3 class="text-xs font-bold text-white">Supabase Realtime Noticeboard</h3>
-          </div>
-          <button onclick="simulateRealtimeAlert()" class="px-2 py-1 rounded-lg bg-cyan-600 text-white text-[10px] font-bold">
-            + Dir Alert
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+          <button onclick="openAuditModalMobile()" class="py-2 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold">
+            Daily Audit
           </button>
-        </div>
-
-        <div id="notice-feed" class="space-y-2 text-xs">
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-white">Shift-ka Galabta: Cisco BGP Transit Labs</span>
-              <span class="px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800 text-[9px] font-bold">URGENT</span>
-            </div>
-            <p class="text-slate-400 text-[11px]">Dhammaan macalimiinta galabta fadlan hubiya in patch cables-ku diyaar yihiin.</p>
-          </div>
+          <button onclick="completeTeacherLab()" id="teacher-complete-btn" class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">
+            Dhammee (-1 Load)
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- AI Hardware Troubleshooter -->
-      <div class="p-4 rounded-2xl bg-slate-900 border border-amber-500/40 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
-            <span>⚡ AI Hardware Troubleshooter</span>
-          </h3>
-          <span class="text-[9px] font-mono text-amber-300 px-1.5 py-0.5 rounded bg-amber-950 border border-amber-700/40">NLP AI</span>
-        </div>
-
-        <p class="text-xs text-slate-400">Dooro cilad hardware si aad u hesho xalka tallaabo-tallaabo ah:</p>
-
-        <div class="grid grid-cols-1 gap-1.5">
-          <button onclick="showAISolution('amber')" class="p-2 rounded-xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 text-left text-xs text-slate-200">
-            • Switch ports are blinking amber (STP Loop)
-          </button>
-          <button onclick="showAISolution('cisco')" class="p-2 rounded-xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 text-left text-xs text-slate-200">
-            • Cisco 2901 stuck in ROMMON prompt
-          </button>
-          <button onclick="showAISolution('ram')" class="p-2 rounded-xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 text-left text-xs text-slate-200">
-            • Dell PC power button blinking amber (RAM error)
-          </button>
-        </div>
-
-        <!-- AI Solution Box -->
-        <div id="ai-solution-box" class="hidden p-3.5 rounded-xl bg-slate-950 border border-amber-500/50 space-y-2 text-xs">
-          <div class="font-bold text-amber-300" id="ai-solution-title">Xalka Ciladda:</div>
-          <div class="text-slate-300 space-y-1 text-[11px]" id="ai-solution-steps"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- TAB 4: PHASE 4 (UAT LAUNCH & AUTOMATED TEST SIGN-OFF) -->
-    <!-- ============================================================== -->
-    <section id="view-phase4" class="tab-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Phase 4: UAT Launch Sign-Off</h3>
-          <span class="text-[10px] font-bold text-emerald-400">100% Passed</span>
-        </div>
+    <!-- 4. SUBJECT TEACHER (LECTURER) DASHBOARD -->
+    <div id="view-SUBJECT_TEACHER" class="role-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/40 space-y-2">
+        <span class="text-xs font-bold uppercase text-cyan-300">Subject Teacher (Lecturer) Portal</span>
         <p class="text-xs text-slate-300">
-          Xaqiijinta $0/mo Free Tier Strategy, Automated 00:00 UTC Backups, iyo Health API.
+          Daabac codsi lab cusub, lifaaq Google Drive/GitHub link, iyo qalabka loo baahan yahay.
         </p>
       </div>
 
-      <div class="space-y-2 text-xs">
-        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <h3 class="text-xs font-bold text-white">+ Daabac Fadhi Cusub (Publish Lab)</h3>
+        <form onsubmit="handleLecturerPublish(event)" class="space-y-2 text-xs">
           <div>
-            <div class="font-bold text-white">Daily Backup Workflow</div>
-            <div class="text-[10px] text-slate-400">00:00 UTC pg_dump ➔ Google Drive</div>
+            <label class="block text-slate-400 text-[10px] mb-0.5">Magaca Maaddada *</label>
+            <input type="text" id="lec-course-input" required placeholder="e.g. CSC 402: Distributed Cloud Systems" class="w-full p-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs">
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">ACTIVE</span>
-        </div>
-
-        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
           <div>
-            <div class="font-bold text-white">Server Overhead Cost</div>
-            <div class="text-[10px] text-slate-400">Vercel + Supabase + GitHub Free Tier</div>
+            <label class="block text-slate-400 text-[10px] mb-0.5">Resource Link / Lab Sheet URL *</label>
+            <input type="url" id="lec-link-input" required placeholder="https://drive.google.com/... ama GitHub link" class="w-full p-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs">
           </div>
-          <span class="font-bold text-emerald-400 text-sm">$0.00 / mo</span>
-        </div>
-
-        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-          <div>
-            <div class="font-bold text-white">Health API Response</div>
-            <div class="text-[10px] text-slate-400">Database latency: 2ms</div>
-          </div>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">200 OK</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============================================================== -->
-  <!-- MODAL: DAILY HARDWARE AUDIT (COMPLETE / INCOMPLETE TOGGLE) -->
-  <!-- ============================================================== -->
-  <div id="audit-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="font-bold text-sm text-white">Daily Hardware Audit</h3>
-          <p class="text-[10px] text-slate-400">LAB-204 (Cisco Networks)</p>
-        </div>
-        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
-      </div>
-
-      <!-- Status Buttons -->
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold text-slate-300">Xaaladda Audit-ka (Status) *</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="selectAuditStatus('COMPLETE')" id="btn-status-complete" class="p-3 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 text-xs font-bold">
-            ✓ COMPLETE
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs mt-2">
+            Daabac Codsiga Fadhiga
           </button>
-          <button type="button" onclick="selectAuditStatus('INCOMPLETE')" id="btn-status-incomplete" class="p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold">
-            ⚠ INCOMPLETE
-          </button>
-        </div>
-      </div>
-
-      <!-- Conditional Mandatory Reason (Shown only when INCOMPLETE) -->
-      <div id="incomplete-reason-container" class="hidden space-y-1.5">
-        <label class="block text-[11px] font-semibold text-rose-300">
-          Sababta Audit-ku u Dhammaystirmi Waayay (Mandatory) *
-        </label>
-        <textarea id="incomplete-reason-input" rows="3" placeholder="Sharax qalabka ciladaysan (tusaale: PC-04 ma shaqaynayo)..." class="w-full p-2.5 rounded-xl bg-slate-950 border border-rose-800 text-xs text-white placeholder-slate-500 focus:outline-none"></textarea>
-        <div id="modal-validation-error" class="hidden text-[10px] text-rose-400 font-medium">Fadlan qor sababta (ugu yaraan 10 xaraf).</div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
-        <button onclick="closeAuditModal()" class="px-3 py-2 rounded-xl text-xs text-slate-400">Ka noqo</button>
-        <button onclick="submitDailyAudit()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg">
-          Gudbi Audit-ka
-        </button>
+        </form>
       </div>
     </div>
-  </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+    <!-- 5. INVENTORY OFFICER DASHBOARD -->
+    <div id="view-INVENTORY_OFFICER" class="role-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-2">
+        <span class="text-xs font-bold uppercase text-amber-300">Inventory Officer Hardware Suite</span>
+        <p class="text-xs text-slate-300">
+          Kormeerka qalabka Dell PCs, Cisco Routers, Switches iyo wareejinta qolalka.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+        <div class="flex items-center justify-between font-bold text-white pb-2 border-b border-slate-800">
+          <span>Physical Assets in Lab Rooms</span>
+          <span class="text-cyan-400">8 Assets</span>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Dell OptiPlex 7090 PC</div>
+            <div class="text-[10px] text-slate-400">LAB-101 (Programming)</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Cisco 2901 ISR Router</div>
+            <div class="text-[10px] text-slate-400">LAB-204 (Cisco Networks)</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Catalyst 2960-X Switch</div>
+            <div class="text-[10px] text-slate-400">LAB-204 (Port 12 Alert)</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-950 text-rose-300 border border-rose-600/40">MAINTENANCE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. COLLEGE MANAGEMENT DASHBOARD -->
+    <div id="view-COLLEGE_MANAGEMENT" class="role-view hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 space-y-2">
+        <span class="text-xs font-bold uppercase text-rose-300">College Management Analytics</span>
+        <p class="text-xs text-slate-300">
+          Executive Read-Only Overview: Tirakoobka labs-ka, macalimiinta, iyo $0/mo Free Tier status.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+          <span class="text-slate-400">Total Labs</span>
+          <div class="text-2xl font-bold text-white">3 Classes</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+          <span class="text-slate-400">Server Overhead</span>
+          <div class="text-2xl font-bold text-emerald-400">$0.00 / mo</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT ROLE SWITCHING & INTERACTIONS -->
   <script>
-    let currentTab = 'phase1';
-    let currentAuditStatus = 'COMPLETE';
-    let isSessionCompleted = false;
+    function switchRole(roleName) {
+      document.querySelectorAll('.role-view').forEach(v => v.classList.add('hidden'));
+      const activeView = document.getElementById('view-' + roleName);
+      if (activeView) activeView.classList.remove('hidden');
 
-    function switchTab(tabId) {
-      currentTab = tabId;
-      document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
-      document.getElementById('view-' + tabId).classList.remove('hidden');
-
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-cyan-600', 'text-white', 'shadow-md');
+      document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.classList.remove('bg-purple-600', 'bg-cyan-600', 'bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-rose-600', 'text-white', 'shadow');
         btn.classList.add('text-slate-400');
       });
 
-      const activeBtn = document.getElementById('tab-btn-' + tabId);
-      activeBtn.classList.add('bg-cyan-600', 'text-white', 'shadow-md');
-      activeBtn.classList.remove('text-slate-400');
-    }
-
-    function openAuditModal() {
-      document.getElementById('audit-modal').classList.remove('hidden');
-      document.getElementById('audit-modal').classList.add('flex');
-    }
-
-    function closeAuditModal() {
-      document.getElementById('audit-modal').classList.add('hidden');
-      document.getElementById('audit-modal').classList.remove('flex');
-    }
-
-    function selectAuditStatus(status) {
-      currentAuditStatus = status;
-      const btnComplete = document.getElementById('btn-status-complete');
-      const btnIncomplete = document.getElementById('btn-status-incomplete');
-      const reasonContainer = document.getElementById('incomplete-reason-container');
-
-      if (status === 'COMPLETE') {
-        btnComplete.className = 'p-3 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 text-xs font-bold';
-        btnIncomplete.className = 'p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold';
-        reasonContainer.classList.add('hidden');
-      } else {
-        btnComplete.className = 'p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold';
-        btnIncomplete.className = 'p-3 rounded-xl border border-rose-500 bg-rose-950/40 text-rose-300 text-xs font-bold';
-        reasonContainer.classList.remove('hidden');
+      const btn = document.getElementById('role-btn-' + roleName);
+      if (btn) {
+        btn.classList.add('bg-purple-600', 'text-white', 'shadow');
+        btn.classList.remove('text-slate-400');
       }
     }
 
-    function submitDailyAudit() {
-      const reasonInput = document.getElementById('incomplete-reason-input').value;
-      const errorDiv = document.getElementById('modal-validation-error');
-
-      if (currentAuditStatus === 'INCOMPLETE' && (!reasonInput || reasonInput.trim().length < 10)) {
-        errorDiv.classList.remove('hidden');
-        return;
-      }
-
-      errorDiv.classList.add('hidden');
-      closeAuditModal();
-
-      const banner = document.getElementById('audit-feedback-banner');
-      const text = document.getElementById('audit-feedback-text');
-      banner.classList.remove('hidden');
-
-      if (currentAuditStatus === 'INCOMPLETE') {
-        banner.className = 'p-3.5 rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-200 text-xs font-semibold flex items-center justify-between';
-        text.innerText = '⚠ Audit Status: INCOMPLETE (Digniin loo diray Lab Head-ka)! Sabab: ' + reasonInput;
-      } else {
-        banner.className = 'p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 text-xs font-semibold flex items-center justify-between';
-        text.innerText = '✓ Audit Status: COMPLETE (Qalabku wuu hagaagsan yahay)!';
-      }
+    function assignChairmanSession() {
+      const btn = document.getElementById('chairman-assign-btn');
+      btn.innerText = '✓ Waxaa loo xilsaaray Eng. Sacdiya (+1 Load)!';
+      btn.className = 'w-full py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs';
+      btn.disabled = true;
     }
 
-    function toggleSessionComplete() {
-      const badge = document.getElementById('demo-session-badge');
-      const text = document.getElementById('demo-teacher-load-text');
-      const bar = document.getElementById('demo-teacher-load-bar');
-      const btn = document.getElementById('demo-complete-btn');
+    function completeTeacherLab() {
+      const badge = document.getElementById('teacher-session-badge');
+      const text = document.getElementById('teacher-load-text');
+      const bar = document.getElementById('teacher-load-bar');
+      const btn = document.getElementById('teacher-complete-btn');
 
-      if (!isSessionCompleted) {
-        badge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40';
-        badge.innerText = 'COMPLETED';
-        text.innerText = '0 / 4 Classes (Capacity Restored)';
-        text.className = 'font-bold text-emerald-400';
-        bar.style.width = '0%';
-        btn.className = 'w-full py-2.5 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs shadow cursor-not-allowed';
-        btn.innerText = 'Fadhigu Wuu Dhamaaday (-1 Load Done)';
-        btn.disabled = true;
-        isSessionCompleted = true;
-      }
+      badge.className = 'px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 text-[9px] font-bold';
+      badge.innerText = 'COMPLETED';
+      text.innerText = '0 / 4 Classes (Capacity Restored)';
+      text.className = 'font-bold text-emerald-400';
+      bar.style.width = '0%';
+      btn.innerText = 'Fadhigu Wuu Dhamaaday (-1 Load)';
+      btn.disabled = true;
+      btn.className = 'py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold';
     }
 
-    function simulateRealtimeAlert() {
-      const feed = document.getElementById('notice-feed');
-      const newCard = document.createElement('div');
-      newCard.className = 'p-3 rounded-xl bg-slate-950 border border-cyan-500/60 space-y-1 animate-in fade-in';
-      newCard.innerHTML = `
-        <div class="flex items-center justify-between">
-          <span class="font-bold text-cyan-300">Ogeysiis Cusub (Realtime)</span>
-          <span class="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-bold">LIVE</span>
-        </div>
-        <p class="text-slate-300 text-[11px]">Lab-ka 101 waxaa lagu daray 10 Dell OptiPlex PCs oo cusub.</p>
-      `;
-      feed.prepend(newCard);
-    }
-
-    function showAISolution(type) {
-      const box = document.getElementById('ai-solution-box');
-      const title = document.getElementById('ai-solution-title');
-      const steps = document.getElementById('ai-solution-steps');
-      box.classList.remove('hidden');
-
-      if (type === 'amber') {
-        title.innerText = 'Cisco Catalyst Switch Port Amber (STP Loop Detection):';
-        steps.innerHTML = `
-          <div>1. Ka saar patch cable-ka keenay loopback-ka.</div>
-          <div>2. Gal switch console: <code class="text-cyan-400">show spanning-tree blockedports</code>.</div>
-          <div>3. Dekedda ku samee <code class="text-cyan-400">shutdown</code> ka dibna <code class="text-cyan-400">no shutdown</code>.</div>
-        `;
-      } else if (type === 'cisco') {
-        title.innerText = 'Cisco 2901 Router ROMMON Mode Recovery:';
-        steps.innerHTML = `
-          <div>1. Ku xidh console cable (PuTTY speed 9600).</div>
-          <div>2. Hubi flash-ka: <code class="text-cyan-400">dir flash:</code>.</div>
-          <div>3. Boot-garee IOS-ka: <code class="text-cyan-400">boot flash:c2900-universalk9-mz.bin</code>.</div>
-        `;
-      } else {
-        title.innerText = 'Dell OptiPlex RAM Reseating & Diagnostics:';
-        steps.innerHTML = `
-          <div>1. Fur daboolka PC-ga oo soo bixi labada DDR4 RAM sticks.</div>
-          <div>2. Ku nadiifi baalasha dahabka ah maro qalalan.</div>
-          <div>3. Dib ugu riix ilaa ay ka guxaan (Click sound).</div>
-        `;
-      }
+    function handleLecturerPublish(e) {
+      e.preventDefault();
+      const course = document.getElementById('lec-course-input').value;
+      alert(`Fadhiga ${course} si guul leh ayaa loo daabacay (PENDING)!`);
+      document.getElementById('lec-course-input').value = '';
+      document.getElementById('lec-link-input').value = '';
     }
   </script>
 </body>
