@@ -1,358 +1,323 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  UserRole,
-  ShiftType,
-  CourseSessionRequest,
-  InstructorProfile,
-  EquipmentTool,
-  AnnouncementItem,
-} from "@/types/clhms";
-import AppShell from "@/components/layout/AppShell";
-import DashboardOverview from "@/components/clhms/DashboardOverview";
-import AdminUserManagement, { AuditLogItem } from "@/components/admin/AdminUserManagement";
-import LabChairmanDashboard from "@/components/chairman/LabChairmanDashboard";
-import InstructorSessionsAudit from "@/components/clhms/InstructorSessionsAudit";
-import SubjectTeacherDashboard from "@/components/subject-teacher/SubjectTeacherDashboard";
-import InventoryOfficerDashboard from "@/components/inventory/InventoryOfficerDashboard";
-import CollegeManagementDashboard from "@/components/management/CollegeManagementDashboard";
-import HardwareCategoryManager from "@/components/clhms/HardwareCategoryManager";
+  KaabeRole,
+  ShiftWindow,
+  UserAccount,
+  LabCourseRequest,
+  HardwareToolItem,
+  CampusAnnouncement,
+  AuditLogEntry,
+} from "@/types/kaabe";
+import ZicLogin from "@/components/zic/auth/ZicLogin";
+import Header from "@/components/kaabe/Header";
+import Sidebar from "@/components/kaabe/Sidebar";
+import MobileDrawer from "@/components/kaabe/MobileDrawer";
+import DashboardView from "@/components/kaabe/views/DashboardView";
+import LabRequestsView from "@/components/kaabe/views/LabRequestsView";
+import AssignmentsView from "@/components/kaabe/views/AssignmentsView";
+import MyLabsView from "@/components/kaabe/views/MyLabsView";
+import HardwareInventoryView from "@/components/kaabe/views/HardwareInventoryView";
+import CategoriesView from "@/components/zic/views/CategoriesView";
+import ReportsView from "@/components/zic/views/ReportsView";
+import SettingsView from "@/components/zic/views/SettingsView";
+import AdminUsersView from "@/components/zic/views/AdminUsersView";
+import ProfileView from "@/components/kaabe/views/ProfileView";
+import AnnouncementsView from "@/components/kaabe/views/AnnouncementsView";
 import TeacherDirectoryModal from "@/components/clhms/TeacherDirectoryModal";
-import AdminAnnouncements from "@/components/clhms/AdminAnnouncements";
-import PRDLoginForm, { PRDRoleName } from "@/components/auth/PRDLoginForm";
 import DailyAuditModal from "@/components/DailyAuditModal";
-import {
-  Crown,
-  Shield,
-  UserCheck,
-  BookOpen,
-  Wrench,
-  BarChart3,
-  LayoutDashboard,
-  LogOut,
-  Bell,
-  Cpu,
-  Users,
-} from "lucide-react";
 
-// Initial Mock Seed Data matching PRD 1.1
-const INITIAL_SESSIONS: CourseSessionRequest[] = [
+// Initial Seed Data for Zoom International College
+const SEED_USER: UserAccount = {
+  id: "user-admin",
+  fullName: "Dr. Abdishakur Mohamed",
+  email: "admin@college.edu",
+  employeeId: "ZIC-ADM-01",
+  phone: "+252 61 500 0001",
+  role: "SUPER_ADMIN",
+  department: "Executive Administration",
+  category: "Programming Lab",
+  shift: "MORNING",
+  activeLoadCount: 0,
+  maxLoadCapacity: 4,
+  bio: "Super Administrator overseeing Zoom International College operations, role permissions, and laboratory infrastructure.",
+  skills: ["System Governance", "Security", "Staff Management", "Analytics"],
+  status: "Active",
+  createdAt: "2026-01-15",
+};
+
+const INITIAL_SESSIONS: LabCourseRequest[] = [
   {
     id: "session-01",
-    lecturerId: "lec-01",
-    lecturerName: "Ust. Cali Nuur (Academic Lecturer)",
-    courseName: "CSC 312: Advanced Database Systems & PostgreSQL",
-    category: "Programming",
-    date: "Maanta",
-    shift: "MORNING",
+    courseCode: "CSC 312",
+    courseTitle: "CSC 312: Advanced Database Systems & PostgreSQL",
+    category: "Programming Lab",
+    lecturerId: "user-lecturer",
+    lecturerName: "Prof. Ali Nur (Lecturer)",
     labRoom: "LAB-101 (Programming)",
-    hardwareRequirements: "25 Workstations with pgAdmin & Node.js runtime",
-    resourceLink: "https://drive.google.com/drive/folders/1aBcDeFgHiJkLmNoPqRsTuVwXyZ",
-    instructorInstructions: "Fadlan ardayda ku hag inay furan pgAdmin oo ku shubaan seed.sql",
+    shift: "MORNING",
+    hardwareNeeds: "25 Workstations with pgAdmin & Node.js runtime",
+    resourceLink: "https://drive.google.com/drive/folders/db-lab-sheets",
+    lecturerNotes: "Please guide students through Chapter 4 practical database setup.",
     status: "PENDING",
     createdAt: "30 mins ago",
   },
   {
     id: "session-02",
-    lecturerId: "lec-02",
-    lecturerName: "Dr. Maryam Xaashi (Lecturer)",
-    courseName: "NET 401: Cisco BGP Transit Routing & Peering",
-    category: "Technical",
-    date: "Maanta",
-    shift: "AFTERNOON",
+    courseCode: "NET 401",
+    courseTitle: "NET 401: Cisco BGP Transit Routing & Peering",
+    category: "Technical & Cisco Lab",
+    lecturerId: "user-lecturer",
+    lecturerName: "Dr. Maryam Hashi (Lecturer)",
     labRoom: "LAB-204 (Cisco Networks)",
-    hardwareRequirements: "Cisco 2901 Routers, Catalyst 2960 Switches & Patch Cables",
+    shift: "AFTERNOON",
+    hardwareNeeds: "Cisco 2901 Routers, Catalyst 2960 Switches & Patch Cables",
     resourceLink: "https://github.com/cisco-labs/bgp-peering-topology",
-    instructorInstructions: "Ku xidh console cable oo ardaydu ha qaabeeyaan Autonomous System 65001",
-    assignedTeacherId: "inst-tech-02",
-    assignedTeacherName: "Eng. Sacdiya Maxamuud",
+    lecturerNotes: "Configure console cables for Autonomous System 65001.",
+    assignedTeacherId: "user-lab-teacher",
+    assignedTeacherName: "Eng. Sadiya Mohamud",
     status: "IN_PROGRESS",
     createdAt: "2 hours ago",
   },
   {
     id: "session-03",
-    lecturerId: "lec-03",
-    lecturerName: "Eng. Cabdiwali Jaamac (Lecturer)",
-    courseName: "MM 201: Adobe Premiere & 4K Video Post-Production",
-    category: "Multimedia",
-    date: "Shalay",
-    shift: "MORNING",
+    courseCode: "MM 201",
+    courseTitle: "MM 201: Adobe Premiere & 4K Video Post-Production",
+    category: "Multimedia Studio",
+    lecturerId: "user-lecturer",
+    lecturerName: "Prof. Abdiwali Jama (Lecturer)",
     labRoom: "Multimedia Studio A",
-    hardwareRequirements: "Epson 4K Projector, GPU PCs, Studio Mic",
-    resourceLink: "https://drive.google.com/drive/folders/media-raw-footage-lab",
-    assignedTeacherId: "inst-prog-01",
-    assignedTeacherName: "Eng. Bilal Axmed",
+    shift: "MORNING",
+    hardwareNeeds: "Epson 4K Laser Projector, GPU PCs, Studio Mic",
+    resourceLink: "https://drive.google.com/drive/folders/media-raw-footage",
+    assignedTeacherId: "user-teacher-03",
+    assignedTeacherName: "Eng. Bilal Ahmed",
     status: "COMPLETED",
-    createdAt: "Shalay",
-    completedAt: "Shalay at 05:30 PM",
+    createdAt: "Yesterday",
+    completedAt: "Yesterday at 05:30 PM",
   },
 ];
 
-const INITIAL_TEACHERS: InstructorProfile[] = [
+const INITIAL_TEACHERS: UserAccount[] = [
   {
-    id: "inst-admin-00",
-    fullName: "System Administrator",
+    id: "user-admin",
+    fullName: "Dr. Abdishakur Mohamed",
     email: "admin@college.edu",
-    employee_id: "ADM-001",
-    role: "ROLE_ADMIN",
-    category: "General",
-    shift: "BOTH",
-    activeLoadCount: 0,
-    maxLoadCount: 4,
+    employeeId: "ZIC-ADM-01",
     phone: "+252 61 500 0001",
-    department: "Computer Science & Administration",
-    skills: ["System Administration", "Security", "PostgreSQL", "RLS"],
-    bio: "Chief System Administrator managing college users, roles, and laboratory infrastructure.",
-    isOnDuty: true,
+    role: "SUPER_ADMIN",
+    department: "Executive Administration",
+    category: "Programming Lab",
+    shift: "MORNING",
+    activeLoadCount: 0,
+    maxLoadCapacity: 4,
+    bio: "Super Administrator overseeing faculty operations, role permissions, and academic lab governance.",
+    skills: ["System Governance", "Security", "Staff Management", "Analytics"],
+    status: "Active",
+    createdAt: "2026-01-15",
   },
   {
-    id: "inst-chairman-01",
-    fullName: "Dr. Cabdiraxmaan Cali (Chairman)",
+    id: "user-chairman",
+    fullName: "Dr. Abdirahman Ali (Chairman)",
     email: "chairman@college.edu",
-    employee_id: "CHM-001",
-    role: "ROLE_LAB_HEAD",
-    category: "Technical",
-    shift: "MORNING",
-    activeLoadCount: 0,
-    maxLoadCount: 4,
+    employeeId: "ZIC-CHM-01",
     phone: "+252 61 500 0002",
-    department: "Department of Computer Science",
-    skills: ["Lab Operations", "Scheduling", "Hardware Audits", "Workload Balancing"],
-    bio: "Director of Laboratory Operations managing instructor assignments and course approvals.",
-    isOnDuty: true,
+    role: "LAB_CHAIRMAN",
+    department: "Faculty of Computing & IT",
+    category: "Technical & Cisco Lab",
+    shift: "MORNING",
+    activeLoadCount: 0,
+    maxLoadCapacity: 4,
+    bio: "Director of Laboratory Operations managing course requests, instructor allocations, and equipment readiness.",
+    skills: ["Lab Scheduling", "Workload Balancing", "Cisco Lab Infrastructure", "Syllabus Coordination"],
+    status: "Active",
+    createdAt: "2026-02-01",
   },
   {
-    id: "inst-teacher-02",
-    fullName: "Eng. Sacdiya Maxamuud",
-    email: "teacher1@college.edu",
-    employee_id: "LT-001",
-    role: "ROLE_LAB_TEACHER",
-    category: "Technical",
-    shift: "AFTERNOON",
-    activeLoadCount: 1, // Low load - available!
-    maxLoadCount: 4,
+    id: "user-lecturer",
+    fullName: "Prof. Ali Nur (Lecturer)",
+    email: "lecturer@college.edu",
+    employeeId: "ZIC-LEC-01",
     phone: "+252 61 500 0003",
-    department: "Networking & Cisco Labs",
-    skills: ["Cisco 2901", "Catalyst Switches", "BGP Peering", "Patch Cabling", "Hardware Diagnostics"],
-    bio: "CCNA & CCNP certified Cisco lab instructor managing core routing, switching, and hardware maintenance.",
-    isOnDuty: true,
-  },
-  {
-    id: "inst-lecturer-03",
-    fullName: "Ust. Cali Nuur (Academic Lecturer)",
-    email: "teacher2@college.edu",
-    employee_id: "ST-001",
-    role: "ROLE_LECTURER",
-    category: "Programming",
-    shift: "MORNING",
-    activeLoadCount: 0,
-    maxLoadCount: 4,
-    phone: "+252 61 500 0004",
+    role: "SUBJECT_TEACHER",
     department: "Software Engineering & Computer Science",
-    skills: ["PostgreSQL", "Next.js", "C++", "Algorithms", "Database Systems"],
-    bio: "Senior Lecturer publishing lab class requirements and syllabus data resources.",
-    isOnDuty: true,
-  },
-  {
-    id: "inst-inventory-04",
-    fullName: "Eng. Mustafe Xuseen (Inventory)",
-    email: "inventory@college.edu",
-    employee_id: "INV-001",
-    role: "ROLE_ADMIN", // Inventory officer persona
-    category: "Technical",
-    shift: "BOTH",
-    activeLoadCount: 0,
-    maxLoadCount: 4,
-    phone: "+252 61 500 0005",
-    department: "Technical & Hardware Repair",
-    skills: ["Asset Scans", "Hardware Transfers", "Soldering", "Diagnostics"],
-    bio: "Inventory Officer in charge of physical equipment registration and room transfers.",
-    isOnDuty: true,
-  },
-  {
-    id: "inst-management-05",
-    fullName: "Dean of Academic Affairs",
-    email: "management@college.edu",
-    employee_id: "MGT-001",
-    role: "ROLE_ADMIN", // College management persona
-    category: "General",
+    category: "Programming Lab",
     shift: "MORNING",
     activeLoadCount: 0,
-    maxLoadCount: 4,
-    phone: "+252 61 500 0006",
-    department: "College Executive Board",
-    skills: ["Executive Reports", "Teacher Workload Analytics", "Resource Audits"],
-    bio: "Dean of Academic Affairs overseeing institutional lab performance and reports.",
-    isOnDuty: true,
+    maxLoadCapacity: 4,
+    bio: "Academic Course Lecturer publishing lab module syllabi, practical sheets, and curriculum requirements.",
+    skills: ["Database Architecture", "PostgreSQL", "Full-Stack Development", "Algorithms"],
+    status: "Active",
+    createdAt: "2026-02-10",
+  },
+  {
+    id: "user-lab-teacher",
+    fullName: "Eng. Sadiya Mohamud",
+    email: "labteacher@college.edu",
+    employeeId: "ZIC-INS-01",
+    phone: "+252 61 500 0004",
+    role: "LAB_TEACHER",
+    department: "Networks & Telecommunications",
+    category: "Technical & Cisco Lab",
+    shift: "AFTERNOON",
+    activeLoadCount: 1, // Low load: available!
+    maxLoadCapacity: 4,
+    bio: "Certified Cisco CCNA/CCNP Lab Instructor executing hands-on lab sessions and daily equipment audits.",
+    skills: ["Cisco BGP Routing", "Catalyst Switches", "Patch Cabling", "Hardware Diagnostics"],
+    status: "Active",
+    createdAt: "2026-03-01",
   },
 ];
 
-const INITIAL_HARDWARE: EquipmentTool[] = [
+const INITIAL_HARDWARE: HardwareToolItem[] = [
   {
     id: "hw-01",
-    name: "Dell OptiPlex 7090 Micro Workstation",
+    assetName: "Dell OptiPlex 7090 Micro Workstation",
     serialNumber: "SN-LAB101-PC01",
-    category: "Programming",
+    category: "Programming Lab",
     labRoom: "LAB-101 (Programming)",
-    isOperational: true,
+    status: "OPERATIONAL",
     notes: "Core i7 16GB RAM, Dual Monitors",
-    lastInspected: "Today at 07:00 AM",
+    lastVerifiedAt: "Today at 07:00 AM",
   },
   {
     id: "hw-02",
-    name: "Dell OptiPlex 7090 Micro Workstation",
+    assetName: "Dell OptiPlex 7090 Micro Workstation",
     serialNumber: "SN-LAB101-PC02",
-    category: "Programming",
+    category: "Programming Lab",
     labRoom: "LAB-101 (Programming)",
-    isOperational: true,
+    status: "OPERATIONAL",
     notes: "Core i7 16GB RAM",
-    lastInspected: "Today at 07:00 AM",
+    lastVerifiedAt: "Today at 07:00 AM",
   },
   {
     id: "hw-03",
-    name: "Cisco 2901 Integrated Services Router",
+    assetName: "Cisco 2901 Integrated Services Router",
     serialNumber: "SN-CISCO-RTR-01",
-    category: "Technical",
+    category: "Technical & Cisco Lab",
     labRoom: "LAB-204 (Cisco Networks)",
-    isOperational: true,
+    status: "OPERATIONAL",
     notes: "Configured with BGP and OSPF modules",
-    lastInspected: "Today at 08:30 AM",
+    lastVerifiedAt: "Today at 08:30 AM",
   },
   {
     id: "hw-04",
-    name: "Cisco Catalyst 2960-X 24-Port Switch",
+    assetName: "Cisco Catalyst 2960-X 24-Port Switch",
     serialNumber: "SN-SW-CAT2960-A",
-    category: "Technical",
+    category: "Technical & Cisco Lab",
     labRoom: "LAB-204 (Cisco Networks)",
-    isOperational: false, // In maintenance
+    status: "MAINTENANCE",
     notes: "Port 12-24 patch cable replacement required",
-    lastInspected: "Yesterday at 04:00 PM",
+    lastVerifiedAt: "Yesterday at 04:00 PM",
   },
   {
     id: "hw-05",
-    name: "Epson 4K Laser Overhead Projector",
+    assetName: "Epson 4K Laser Overhead Projector",
     serialNumber: "SN-PRJ-EPS-01",
-    category: "Multimedia",
+    category: "Multimedia Studio",
     labRoom: "Multimedia Studio A",
-    isOperational: true,
+    status: "OPERATIONAL",
     notes: "4K UHD HDMI connected to lecturer pod",
-    lastInspected: "Today at 09:00 AM",
+    lastVerifiedAt: "Today at 09:00 AM",
   },
 ];
 
-const INITIAL_ANNOUNCEMENTS: AnnouncementItem[] = [
+const INITIAL_ANNOUNCEMENTS: CampusAnnouncement[] = [
   {
     id: "ann-01",
-    authorName: "Dr. Cabdiraxmaan Cali (Chairman)",
-    authorRole: "ROLE_LAB_HEAD",
-    title: "Shift-ka Galabta: Cisco BGP Transit Labs & Patch Cabling",
-    content: "Dhammaan macalimiinta galabta fadlan hubiya in patch cables-ku ay diyaar u yihiin fadhiga Cisco BGP ka hor 04:00 PM EAT.",
+    title: "Afternoon Shift: Cisco BGP Transit Labs & Patch Cabling",
+    content: "All afternoon lab instructors must ensure patch cables and RJ45 crimpers are ready before 04:00 PM EAT.",
     priority: "HIGH",
     isPinned: true,
-    createdAt: "Hadda (2 min ago)",
+    authorName: "Dr. Abdirahman Ali (Chairman)",
+    authorRole: "LAB_CHAIRMAN",
+    createdAt: "Just now (2 mins ago)",
   },
   {
     id: "ann-02",
-    authorName: "System Administrator",
-    authorRole: "ROLE_ADMIN",
-    title: "Dayactirka Qalabka Lab 204 & Switch Replacement",
-    content: "Switch-ka port 12-24 ee Lab 204 waxaa lagu samaynayaa beddelaad patch cables cusub si loo suurtageliyo gigabit link.",
+    title: "Lab 204 Catalyst Switch Maintenance",
+    content: "Switch ports 12-24 in LAB-204 are undergoing patch cable replacement to enable gigabit link speed.",
     priority: "NORMAL",
     isPinned: false,
-    createdAt: "Saacad ka hor",
+    authorName: "System Administrator",
+    authorRole: "SUPER_ADMIN",
+    createdAt: "1 hour ago",
   },
 ];
 
-const INITIAL_AUDIT_LOGS: AuditLogItem[] = [
-  {
-    id: "log-01",
-    actorName: "System Administrator",
-    action: "USER_CREATED",
-    entityType: "user",
-    description: "Registered new Lab Teacher Eng. Sacdiya Maxamuud (LT-001) in Networking & Cisco.",
-    timestamp: "Today at 07:15 AM",
-  },
-  {
-    id: "log-02",
-    actorName: "Dr. Cabdiraxmaan Cali",
-    action: "LAB_ASSIGNED",
-    entityType: "lab",
-    description: "Assigned Cisco BGP Routing session to Eng. Sacdiya Maxamuud (+1 Load Count).",
-    timestamp: "Today at 08:30 AM",
-  },
-  {
-    id: "log-03",
-    actorName: "System Administrator",
-    action: "SYSTEM_INITIALIZED",
-    entityType: "system",
-    description: "CLHMS PRD Version 1.1 User Accounts, Roles & Permissions successfully activated.",
-    timestamp: "Today at 06:00 AM",
-  },
-];
-
-export default function HomePage() {
+export default function ZoomCollegePortal() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  const [activePRDRole, setActivePRDRole] = useState<PRDRoleName>("ADMIN");
-  const [activeShift, setActiveShift] = useState<ShiftType>("MORNING");
-  const [currentUserEmail, setCurrentUserEmail] = useState<string>("admin@college.edu");
-  const [currentUserName, setCurrentUserName] = useState<string>("System Administrator");
+  const [currentUser, setCurrentUser] = useState<UserAccount>(SEED_USER);
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [activeShift, setActiveShift] = useState<ShiftWindow>("MORNING");
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState<boolean>(false);
 
-  // Stores
-  const [sessions, setSessions] = useState<CourseSessionRequest[]>(INITIAL_SESSIONS);
-  const [teachers, setTeachers] = useState<InstructorProfile[]>(INITIAL_TEACHERS);
-  const [hardwareList, setHardwareList] = useState<EquipmentTool[]>(INITIAL_HARDWARE);
-  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(INITIAL_ANNOUNCEMENTS);
-  const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>(INITIAL_AUDIT_LOGS);
+  // App Data Stores
+  const [sessions, setSessions] = useState<LabCourseRequest[]>(INITIAL_SESSIONS);
+  const [teachers, setTeachers] = useState<UserAccount[]>(INITIAL_TEACHERS);
+  const [hardwareList, setHardwareList] = useState<HardwareToolItem[]>(INITIAL_HARDWARE);
+  const [announcements, setAnnouncements] = useState<CampusAnnouncement[]>(INITIAL_ANNOUNCEMENTS);
 
-  // Global Audit Modal State
-  const [isDailyAuditModalOpen, setIsDailyAuditModalOpen] = useState<boolean>(false);
+  // Global Daily Audit Modal
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
 
-  // Handlers
-  const handleLoginSuccess = (role: PRDRoleName, email: string, name: string) => {
-    setActivePRDRole(role);
-    setCurrentUserEmail(email);
-    setCurrentUserName(name);
+  // Load persistent session from localStorage on mount (PRD: browser remembers login)
+  useEffect(() => {
+    try {
+      const savedSession = localStorage.getItem("zic_auth_session");
+      if (savedSession) {
+        const parsed = JSON.parse(savedSession);
+        setCurrentUser(parsed);
+        setIsAuthenticated(true);
+      }
+    } catch (e) {}
+  }, []);
+
+  // Authentication Handlers
+  const handleLogin = (user: UserAccount) => {
+    setCurrentUser(user);
     setIsAuthenticated(true);
+    setActiveTab("overview");
+    try {
+      localStorage.setItem("zic_auth_session", JSON.stringify(user));
+    } catch (e) {}
   };
 
-  const handleAddSession = (newSession: Partial<CourseSessionRequest>) => {
-    const sessionItem: CourseSessionRequest = {
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    try {
+      localStorage.removeItem("zic_auth_session");
+    } catch (e) {}
+  };
+
+  // Lab Publishing Handlers (Subject Teachers)
+  const handleAddSession = (newSession: Partial<LabCourseRequest>) => {
+    const created: LabCourseRequest = {
       id: `session-${Date.now()}`,
-      lecturerId: "lec-01",
-      lecturerName: currentUserName,
-      courseName: newSession.courseName || "Untitled Lab Class",
-      category: newSession.category || "Programming",
-      date: newSession.date || "Maanta",
+      courseCode: newSession.courseCode || "CSC 300",
+      courseTitle: newSession.courseTitle || "Untitled Lab Class",
+      category: newSession.category || "Programming Lab",
+      lecturerId: currentUser.id,
+      lecturerName: currentUser.fullName,
+      labRoom: newSession.labRoom || "LAB-101 (Programming)",
       shift: newSession.shift || activeShift,
-      labRoom: newSession.labRoom || "LAB-101",
-      hardwareRequirements: newSession.hardwareRequirements || "Standard PC Setup",
+      hardwareNeeds: newSession.hardwareNeeds || "Standard Lab Workstations",
       resourceLink: newSession.resourceLink,
-      instructorInstructions: newSession.instructorInstructions,
+      lecturerNotes: newSession.lecturerNotes,
       status: "PENDING",
-      createdAt: "Hadda",
+      createdAt: "Just now",
     };
-    setSessions([sessionItem, ...sessions]);
 
-    // Record Audit Log
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "COURSE_PUBLISHED",
-        entityType: "lab",
-        description: `Published new lab class request: ${sessionItem.courseName}`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
+    setSessions([created, ...sessions]);
   };
 
-  const handleDeleteSession = (sessionId: string) => {
-    setSessions(sessions.filter((s) => s.id !== sessionId));
+  const handleDeleteSession = (id: string) => {
+    setSessions(sessions.filter((s) => s.id !== id));
   };
 
-  const handleAssignTeacher = (sessionId: string, teacherId: string, customResourceLink?: string) => {
+  // Lab Assignment Handler (Lab Chairman)
+  const handleAssignTeacher = (sessionId: string, teacherId: string, customLink?: string) => {
     const teacher = teachers.find((t) => t.id === teacherId);
     if (!teacher) return;
 
@@ -363,7 +328,7 @@ export default function HomePage() {
               ...s,
               assignedTeacherId: teacher.id,
               assignedTeacherName: teacher.fullName,
-              resourceLink: customResourceLink || s.resourceLink,
+              resourceLink: customLink || s.resourceLink,
               status: "IN_PROGRESS",
             }
           : s
@@ -376,30 +341,16 @@ export default function HomePage() {
         t.id === teacherId ? { ...t, activeLoadCount: (t.activeLoadCount || 0) + 1 } : t
       )
     );
-
-    // Record Audit Log
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "LAB_ASSIGNED",
-        entityType: "lab",
-        description: `Assigned session to ${teacher.fullName} (+1 Load Count).`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
   };
 
+  // Lab Completion Handler (Lab Teacher)
   const handleCompleteSession = (sessionId: string) => {
     const session = sessions.find((s) => s.id === sessionId);
     if (!session) return;
 
     setSessions(
       sessions.map((s) =>
-        s.id === sessionId
-          ? { ...s, status: "COMPLETED", completedAt: "Hadda" }
-          : s
+        s.id === sessionId ? { ...s, status: "COMPLETED", completedAt: "Just now" } : s
       )
     );
 
@@ -413,124 +364,62 @@ export default function HomePage() {
         )
       );
     }
-
-    // Record Audit Log
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "LAB_COMPLETED",
-        entityType: "lab",
-        description: `Marked session ${session.courseName} as COMPLETED (-1 Load Decrement).`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
   };
 
-  const handleAddUser = (newUser: Partial<InstructorProfile>) => {
-    const created: InstructorProfile = {
-      id: `inst-${Date.now()}`,
+  // User Management Handlers (Super Admin)
+  const handleAddUser = (newUser: Partial<UserAccount>) => {
+    const created: UserAccount = {
+      id: `user-${Date.now()}`,
       fullName: newUser.fullName || "Staff Member",
       email: newUser.email || "staff@college.edu",
-      employee_id: newUser.employee_id || `EMP-${Date.now().toString().slice(-3)}`,
+      employeeId: newUser.employeeId || `ZIC-STAFF-${Date.now().toString().slice(-3)}`,
       phone: newUser.phone || "+252 61 500 0000",
-      role: newUser.role || "ROLE_LAB_TEACHER",
-      category: newUser.category || "Programming",
+      role: newUser.role || "LAB_TEACHER",
+      department: newUser.department || "Faculty of Computing",
+      category: newUser.category || "Programming Lab",
       shift: newUser.shift || "MORNING",
       activeLoadCount: 0,
-      maxLoadCount: 4,
-      department: newUser.department || "Faculty of IT",
+      maxLoadCapacity: 4,
+      bio: newUser.bio || "Staff member registered by Super Administrator.",
       skills: newUser.skills || ["General IT"],
-      bio: newUser.bio || "Staff member registered by System Admin.",
-      isOnDuty: true,
+      status: "Active",
+      createdAt: "Today",
     };
 
     setTeachers([...teachers, created]);
-
-    // Record Audit Log (PRD Section 32)
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "USER_CREATED",
-        entityType: "user",
-        description: `Created user account for ${created.fullName} with Role: ${created.role}`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
   };
 
-  const handleUpdateUser = (id: string, updated: Partial<InstructorProfile>) => {
+  const handleUpdateUser = (id: string, updated: Partial<UserAccount>) => {
     setTeachers(teachers.map((t) => (t.id === id ? { ...t, ...updated } : t)));
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "USER_PROFILE_UPDATED",
-        entityType: "user",
-        description: `Updated profile details for user ID: ${id}`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
   };
 
-  const handleDeactivateUser = (id: string) => {
-    setTeachers(teachers.map((t) => (t.id === id ? { ...t, isOnDuty: false } : t)));
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "USER_DEACTIVATED",
-        entityType: "user",
-        description: `Deactivated user account ID: ${id}`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
+  const handleDeleteUser = (id: string) => {
+    setTeachers(teachers.filter((t) => t.id !== id));
   };
 
-  const handleReactivateUser = (id: string) => {
-    setTeachers(teachers.map((t) => (t.id === id ? { ...t, isOnDuty: true } : t)));
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "USER_REACTIVATED",
-        entityType: "user",
-        description: `Reactivated user account ID: ${id}`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
+  const handleToggleUserStatus = (id: string) => {
+    setTeachers(
+      teachers.map((t) =>
+        t.id === id ? { ...t, status: t.status === "Active" ? "Inactive" : "Active" } : t
+      )
+    );
   };
 
-  const handleChangeRole = (id: string, newRole: UserRole) => {
+  const handleChangeRole = (id: string, newRole: KaabeRole) => {
     setTeachers(teachers.map((t) => (t.id === id ? { ...t, role: newRole } : t)));
-    setAuditLogs([
-      {
-        id: `log-${Date.now()}`,
-        actorName: currentUserName,
-        action: "USER_ROLE_CHANGED",
-        entityType: "user",
-        description: `Changed role for user ${id} to ${newRole}`,
-        timestamp: "Hadda",
-      },
-      ...auditLogs,
-    ]);
   };
 
-  const handleAddHardware = (item: Partial<EquipmentTool>) => {
-    const newHw: EquipmentTool = {
+  // Hardware Handlers
+  const handleAddHardware = (item: Partial<HardwareToolItem>) => {
+    const newHw: HardwareToolItem = {
       id: `hw-${Date.now()}`,
-      name: item.name || "Hardware Tool",
+      assetName: item.assetName || "Hardware Asset",
       serialNumber: item.serialNumber || `SN-${Date.now().toString().slice(-4)}`,
-      category: item.category || "Programming",
-      labRoom: item.labRoom || "LAB-101",
-      isOperational: item.isOperational ?? true,
-      lastInspected: "Today",
+      category: item.category || "Programming Lab",
+      labRoom: item.labRoom || "LAB-101 (Programming)",
+      status: "OPERATIONAL",
+      notes: item.notes,
+      lastVerifiedAt: "Today",
     };
     setHardwareList([newHw, ...hardwareList]);
   };
@@ -542,233 +431,196 @@ export default function HomePage() {
   const handleToggleHardwareStatus = (id: string) => {
     setHardwareList(
       hardwareList.map((h) =>
-        h.id === id ? { ...h, isOperational: !h.isOperational } : h
+        h.id === id
+          ? { ...h, status: h.status === "OPERATIONAL" ? "MAINTENANCE" : "OPERATIONAL" }
+          : h
       )
     );
   };
 
-  const handleBroadcastAnnouncement = (ann: Partial<AnnouncementItem>) => {
-    const newAnn: AnnouncementItem = {
+  // Announcement Handlers
+  const handleBroadcastAnnouncement = (ann: Partial<CampusAnnouncement>) => {
+    const created: CampusAnnouncement = {
       id: `ann-${Date.now()}`,
-      title: ann.title || "Untitled Alert",
+      title: ann.title || "Untitled Notice",
       content: ann.content || "",
       priority: ann.priority || "NORMAL",
       isPinned: ann.isPinned || false,
-      authorName: currentUserName,
-      authorRole: activePRDRole,
-      createdAt: "Hadda",
+      authorName: currentUser.fullName,
+      authorRole: currentUser.role,
+      createdAt: "Just now",
     };
-    setAnnouncements([newAnn, ...announcements]);
+    setAnnouncements([created, ...announcements]);
   };
 
   const handleDeleteAnnouncement = (id: string) => {
     setAnnouncements(announcements.filter((a) => a.id !== id));
   };
 
+  // Profile Update Handler
+  const handleUpdateProfile = (updated: Partial<UserAccount>) => {
+    const nextUser = { ...currentUser, ...updated };
+    setCurrentUser(nextUser);
+    setTeachers(teachers.map((t) => (t.id === currentUser.id ? nextUser : t)));
+    try {
+      localStorage.setItem("zic_auth_session", JSON.stringify(nextUser));
+    } catch (e) {}
+  };
+
+  // If not authenticated, render clean ZIC Login
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <PRDLoginForm onLoginSuccess={handleLoginSuccess} />
-      </div>
-    );
+    return <ZicLogin onLogin={handleLogin} />;
   }
 
-  // Map PRDRoleName to user_role
-  const legacyRole: UserRole =
-    activePRDRole === "ADMIN"
-      ? "ROLE_ADMIN"
-      : activePRDRole === "LAB_CHAIRMAN"
-      ? "ROLE_LAB_HEAD"
-      : activePRDRole === "LAB_TEACHER"
-      ? "ROLE_LAB_TEACHER"
-      : activePRDRole === "SUBJECT_TEACHER"
-      ? "ROLE_LECTURER"
-      : "ROLE_ADMIN";
-
   return (
-    <AppShell
-      activeRole={legacyRole}
-      onRoleChange={(newRole) => {
-        const mapped: PRDRoleName =
-          newRole === "ROLE_ADMIN"
-            ? "ADMIN"
-            : newRole === "ROLE_LAB_HEAD"
-            ? "LAB_CHAIRMAN"
-            : newRole === "ROLE_LAB_TEACHER"
-            ? "LAB_TEACHER"
-            : "SUBJECT_TEACHER";
-        setActivePRDRole(mapped);
-      }}
-      activeShift={activeShift}
-    >
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Role Identity & Switcher Bar (PRD Section 10, 11) */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-xl">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-md">
-              {activePRDRole === "ADMIN" ? (
-                <Crown className="h-5 w-5" />
-              ) : activePRDRole === "LAB_CHAIRMAN" ? (
-                <Shield className="h-5 w-5" />
-              ) : activePRDRole === "LAB_TEACHER" ? (
-                <UserCheck className="h-5 w-5" />
-              ) : activePRDRole === "SUBJECT_TEACHER" ? (
-                <BookOpen className="h-5 w-5" />
-              ) : activePRDRole === "INVENTORY_OFFICER" ? (
-                <Wrench className="h-5 w-5" />
-              ) : (
-                <BarChart3 className="h-5 w-5" />
-              )}
-            </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-orange-500 selection:text-white">
+      {/* 1. TOP SINGLE-ROW HEADER WITH ZOOM INTERNATIONAL COLLEGE LOGO */}
+      <Header
+        currentUser={currentUser}
+        activeShift={activeShift}
+        onShiftChange={setActiveShift}
+        onNavigate={setActiveTab}
+        onLogout={handleLogout}
+        onToggleMobileDrawer={() => setIsMobileDrawerOpen(true)}
+      />
 
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-white">{currentUserName}</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/40">
-                  {activePRDRole.replace("_", " ")}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                Logged in as: <strong className="text-slate-300">{currentUserEmail}</strong> • PRD v1.1 Active Session
-              </p>
-            </div>
-          </div>
+      {/* 2. BODY WITH SIDEBAR AND MAIN WORKSPACE */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Desktop Sidebar (Role-Aware) */}
+        <Sidebar
+          currentRole={currentUser.role}
+          activeTab={activeTab}
+          onNavigate={setActiveTab}
+        />
 
-          {/* Quick Role Switcher for seamless testing */}
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={activePRDRole}
-              onChange={(e) => setActivePRDRole(e.target.value as PRDRoleName)}
-              className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-cyan-300 focus:outline-none cursor-pointer"
-            >
-              <option value="ADMIN">👑 System Admin Dashboard</option>
-              <option value="LAB_CHAIRMAN">🛡️ Lab Chairman Dashboard</option>
-              <option value="LAB_TEACHER">👨‍🏫 Lab Teacher Dashboard</option>
-              <option value="SUBJECT_TEACHER">📚 Subject Teacher Dashboard</option>
-              <option value="INVENTORY_OFFICER">🛠️ Inventory Officer Dashboard</option>
-              <option value="COLLEGE_MANAGEMENT">📊 College Management Dashboard</option>
-            </select>
+        {/* Mobile Slide-out Drawer */}
+        <MobileDrawer
+          isOpen={isMobileDrawerOpen}
+          currentUser={currentUser}
+          activeTab={activeTab}
+          onNavigate={setActiveTab}
+          onClose={() => setIsMobileDrawerOpen(false)}
+          onLogout={handleLogout}
+        />
 
-            <button
-              onClick={() => setIsAuthenticated(false)}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-              title="Logout"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* ============================================================== */}
-        {/* PRD SECTION 10 & 11: DEDICATED ROLE-BASED DASHBOARD ROUTING */}
-        {/* ============================================================== */}
-
-        {/* 1. SYSTEM ADMIN DASHBOARD (PRD Section 12, 13, 14, 25) */}
-        {activePRDRole === "ADMIN" && (
-          <div className="space-y-6 animate-in fade-in">
-            <AdminUserManagement
-              users={teachers}
-              auditLogs={auditLogs}
-              onAddUser={handleAddUser}
-              onUpdateUser={handleUpdateUser}
-              onDeactivateUser={handleDeactivateUser}
-              onReactivateUser={handleReactivateUser}
-              onChangeRole={handleChangeRole}
-            />
-
-            {/* Quick Admin Access to Hardware & Announcements */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <HardwareCategoryManager
-                hardware={hardwareList}
-                onAddHardware={handleAddHardware}
-                onDeleteHardware={handleDeleteHardware}
-                onToggleStatus={handleToggleHardwareStatus}
-              />
-
-              <AdminAnnouncements
-                activeRole="ROLE_ADMIN"
-                announcements={announcements}
-                onBroadcast={handleBroadcastAnnouncement}
-                onDelete={handleDeleteAnnouncement}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* 2. LAB CHAIRMAN DASHBOARD (PRD Section 22) */}
-        {activePRDRole === "LAB_CHAIRMAN" && (
-          <div className="space-y-6 animate-in fade-in">
-            <LabChairmanDashboard
+        {/* Main Content Workspace */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* View 1: Overview Dashboard */}
+          {activeTab === "overview" && (
+            <DashboardView
+              currentUser={currentUser}
               sessions={sessions}
               teachers={teachers}
-              onAssignTeacher={handleAssignTeacher}
-              onNavigateTab={(tab) => {}}
-            />
-
-            <AdminAnnouncements
-              activeRole="ROLE_LAB_HEAD"
+              hardware={hardwareList}
               announcements={announcements}
-              onBroadcast={handleBroadcastAnnouncement}
-              onDelete={handleDeleteAnnouncement}
+              onNavigate={setActiveTab}
+              onOpenAuditModal={() => setIsAuditModalOpen(true)}
+              onOpenNewLabModal={() => setActiveTab("requests")}
             />
-          </div>
-        )}
+          )}
 
-        {/* 3. LAB TEACHER DASHBOARD (PRD Section 20) */}
-        {activePRDRole === "LAB_TEACHER" && (
-          <div className="space-y-6 animate-in fade-in">
-            <InstructorSessionsAudit
-              sessions={sessions}
-              currentInstructorId="inst-teacher-02"
-              onCompleteSession={handleCompleteSession}
-            />
-          </div>
-        )}
-
-        {/* 4. SUBJECT TEACHER (LECTURER) DASHBOARD (PRD Section 21) */}
-        {activePRDRole === "SUBJECT_TEACHER" && (
-          <div className="space-y-6 animate-in fade-in">
-            <SubjectTeacherDashboard
+          {/* View 2: Course Lab Publishing (Lecturers) */}
+          {activeTab === "requests" && (
+            <LabRequestsView
               sessions={sessions}
               onAddSession={handleAddSession}
               onDeleteSession={handleDeleteSession}
             />
-          </div>
-        )}
+          )}
 
-        {/* 5. INVENTORY OFFICER DASHBOARD (PRD Section 23) */}
-        {activePRDRole === "INVENTORY_OFFICER" && (
-          <div className="space-y-6 animate-in fade-in">
-            <InventoryOfficerDashboard
+          {/* View 3: Teacher Assignments & Workload (Lab Chairman) */}
+          {activeTab === "assignments" && (
+            <AssignmentsView
+              sessions={sessions}
+              teachers={teachers}
+              onAssignTeacher={handleAssignTeacher}
+            />
+          )}
+
+          {/* View 4: My Labs & Daily Audit (Lab Teachers) */}
+          {activeTab === "my-labs" && (
+            <MyLabsView
+              currentUser={currentUser}
+              sessions={sessions}
+              onCompleteSession={handleCompleteSession}
+            />
+          )}
+
+          {/* View 5: Hardware & Tools Inventory */}
+          {activeTab === "hardware" && (
+            <HardwareInventoryView
               hardware={hardwareList}
               onAddHardware={handleAddHardware}
               onDeleteHardware={handleDeleteHardware}
               onToggleStatus={handleToggleHardwareStatus}
             />
-          </div>
-        )}
+          )}
 
-        {/* 6. COLLEGE MANAGEMENT DASHBOARD (PRD Section 24) */}
-        {activePRDRole === "COLLEGE_MANAGEMENT" && (
-          <div className="space-y-6 animate-in fade-in">
-            <CollegeManagementDashboard
-              sessions={sessions}
-              teachers={teachers}
-              hardware={hardwareList}
+          {/* View 6: User & Role Management (Super Admin) */}
+          {activeTab === "users" && (
+            <AdminUsersView
+              users={teachers}
+              onAddUser={handleAddUser}
+              onUpdateUser={handleUpdateUser}
+              onDeleteUser={handleDeleteUser}
+              onToggleStatus={handleToggleUserStatus}
+              onChangeRole={handleChangeRole}
             />
-          </div>
-        )}
+          )}
+
+          {/* View 7: Categories & Lab Rooms Configuration */}
+          {activeTab === "categories" && (
+            <CategoriesView />
+          )}
+
+          {/* View 8: Official A4 Printable Reports Suite */}
+          {activeTab === "reports" && (
+            <ReportsView
+              hardware={hardwareList}
+              teachers={teachers}
+              sessions={sessions}
+            />
+          )}
+
+          {/* View 9: Staff Directory */}
+          {activeTab === "teachers" && (
+            <TeacherDirectoryModal teachers={teachers as any} />
+          )}
+
+          {/* View 10: Campus Noticeboard & Announcements */}
+          {activeTab === "announcements" && (
+            <AnnouncementsView
+              currentRole={currentUser.role}
+              announcements={announcements}
+              onBroadcast={handleBroadcastAnnouncement}
+              onDelete={handleDeleteAnnouncement}
+            />
+          )}
+
+          {/* View 11: My Profile & Settings */}
+          {activeTab === "profile" && (
+            <ProfileView
+              currentUser={currentUser}
+              onUpdateProfile={handleUpdateProfile}
+            />
+          )}
+
+          {/* View 12: System Governance & Settings */}
+          {activeTab === "settings" && (
+            <SettingsView />
+          )}
+        </main>
       </div>
 
       {/* Global Daily Audit Modal */}
       <DailyAuditModal
-        isOpen={isDailyAuditModalOpen}
-        onClose={() => setIsDailyAuditModalOpen(false)}
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
         labSessionId="session-02"
         labName="LAB-204 (Cisco Networking Lab)"
-        instructorId="inst-teacher-02"
-        instructorName="Eng. Sacdiya Maxamuud"
+        instructorId={currentUser.id}
+        instructorName={currentUser.fullName}
       />
-    </AppShell>
+    </div>
   );
 }

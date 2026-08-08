@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="so" class="dark">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CLHMS - PRD 1.1 College Lab Portal</title>
+  <title>Zoom International College (ZIC) - Academic & Lab Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -12,313 +12,559 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    @media print {
+      body { background: #ffffff !important; color: #000000 !important; }
+      header, .no-print, nav, button { display: none !important; }
+      .a4-print-card {
+        border: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+      }
+      .a4-print-card table { width: 100% !important; border-collapse: collapse !important; }
+      .a4-print-card th, .a4-print-card td { border: 1px solid #cbd5e1 !important; color: #000 !important; padding: 6px !important; }
+      .a4-print-card th { background: #f1f5f9 !important; }
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white pb-20">
+<body class="min-h-screen flex flex-col antialiased selection:bg-orange-500 selection:text-white pb-20">
 
-  <!-- TOP HEADER -->
-  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2.5">
-      <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg text-sm">
-        CL
-      </div>
-      <div>
-        <div class="font-extrabold text-sm text-white flex items-center gap-1.5">
-          <span>CLHMS Portal</span>
-          <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 border border-purple-800/40">PRD 1.1</span>
+  <!-- ============================================================== -->
+  <!-- 1. AUTHENTICATED TOP HEADER WITH ZIC LOGO -->
+  <!-- ============================================================== -->
+  <header id="app-header" class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between no-print">
+    <div class="flex items-center gap-3">
+      <!-- Mobile Drawer Button -->
+      <button onclick="toggleMobileDrawer()" class="p-1.5 rounded-xl bg-slate-800/80 text-slate-300 hover:text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+      </button>
+
+      <!-- Logo & Brand -->
+      <div onclick="switchView('overview')" class="flex items-center gap-2.5 cursor-pointer">
+        <img
+          src="/images/zoom_college_logo.jpg"
+          alt="ZIC Logo"
+          class="h-9 w-9 object-contain rounded-full ring-2 ring-orange-500 p-0.5 bg-white shadow-lg"
+          onerror="this.style.display='none'"
+        />
+        <div>
+          <div class="font-black text-sm tracking-tight text-white flex items-center gap-1.5">
+            <span>ZOOM INT. COLLEGE</span>
+            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-orange-950 text-orange-400 border border-orange-800/40 font-bold">ZIC</span>
+          </div>
+          <div class="text-[10px] text-orange-400 font-medium">Academic & Lab Operations</div>
         </div>
-        <div class="text-[10px] text-emerald-400">Supabase Live Connected • 6 Roles Active</div>
       </div>
     </div>
 
-    <!-- Active Shift Pill -->
-    <div class="bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full text-[10px] text-amber-300 font-medium">
-      <span>🌅 Morning Shift (Subax)</span>
+    <!-- Active User & Logout -->
+    <div class="flex items-center gap-2">
+      <div class="text-right hidden sm:block">
+        <div class="font-bold text-xs text-white" id="header-user-name">Dr. Abdishakur</div>
+        <div class="text-[9px] font-mono text-cyan-400" id="header-user-role">SUPER ADMIN</div>
+      </div>
+      <button onclick="performLogout()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 text-xs font-bold flex items-center gap-1">
+        <span>Logout</span>
+      </button>
     </div>
   </header>
 
-  <!-- ROLE SWITCHER BAR (PRD Section 10 & 11) -->
-  <div class="bg-slate-950/90 border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
-    <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider shrink-0">Select Role:</span>
-    <div class="flex items-center gap-1.5">
-      <button onclick="switchRole('ADMIN')" id="role-btn-ADMIN" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold bg-purple-600 text-white whitespace-nowrap shadow">
-        👑 Admin
-      </button>
-      <button onclick="switchRole('LAB_CHAIRMAN')" id="role-btn-LAB_CHAIRMAN" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
-        🛡️ Lab Chairman
-      </button>
-      <button onclick="switchRole('LAB_TEACHER')" id="role-btn-LAB_TEACHER" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
-        👨‍🏫 Lab Teacher
-      </button>
-      <button onclick="switchRole('SUBJECT_TEACHER')" id="role-btn-SUBJECT_TEACHER" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
-        📚 Subject Teacher
-      </button>
-      <button onclick="switchRole('INVENTORY_OFFICER')" id="role-btn-INVENTORY_OFFICER" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
-        🛠️ Inventory
-      </button>
-      <button onclick="switchRole('COLLEGE_MANAGEMENT')" id="role-btn-COLLEGE_MANAGEMENT" class="role-btn px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-400 hover:text-white whitespace-nowrap">
-        📊 Management
-      </button>
-    </div>
-  </div>
+  <!-- ============================================================== -->
+  <!-- 2. NAVIGATION BAR (CLEAN DEDICATED TABS - NO CLUTTER) -->
+  <!-- ============================================================== -->
+  <nav id="app-nav" class="bg-slate-950/90 border-b border-slate-800/80 px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar no-print">
+    <button onclick="switchView('overview')" id="nav-overview" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-orange-600 text-white shadow-md">
+      Dashboard
+    </button>
+    <button onclick="switchView('requests')" id="nav-requests" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      Lab Requests
+    </button>
+    <button onclick="switchView('assignments')" id="nav-assignments" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      Assignments
+    </button>
+    <button onclick="switchView('my-labs')" id="nav-my-labs" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      My Labs & Audit
+    </button>
+    <button onclick="switchView('hardware')" id="nav-hardware" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      Hardware Inventory
+    </button>
+    <button onclick="switchView('categories')" id="nav-categories" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      Categories & Rooms
+    </button>
+    <button onclick="switchView('users')" id="nav-users" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      Staff Users
+    </button>
+    <button onclick="switchView('reports')" id="nav-reports" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      A4 Reports
+    </button>
+    <button onclick="switchView('profile')" id="nav-profile" class="nav-btn px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap text-slate-400 hover:text-white">
+      My Profile
+    </button>
+  </nav>
 
-  <!-- MAIN VIEW -->
+  <!-- ============================================================== -->
+  <!-- 3. MAIN WORKSPACE (RENDER ONLY THE ACTIVE CLEAN VIEW) -->
+  <!-- ============================================================== -->
   <main class="p-4 max-w-lg mx-auto w-full space-y-4 flex-1">
 
-    <!-- 1. ADMIN ROLE DASHBOARD -->
-    <div id="view-ADMIN" class="role-view space-y-4">
-      <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/40 space-y-2">
+    <!-- VIEW 1: DASHBOARD OVERVIEW -->
+    <section id="view-overview" class="view-panel space-y-4">
+      <div class="p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-orange-950/40 border border-slate-800 shadow-xl space-y-2">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase text-purple-300">System Admin Control Suite</span>
-          <span class="text-[10px] font-mono bg-purple-950 px-2 py-0.5 rounded text-purple-300">Full Access</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Zoom International College</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold">OPERATIONAL</span>
         </div>
-        <p class="text-xs text-slate-300">
-          Admin-ku wuxuu abuuraa users-ka, beddelaa roles-ka, oo kormeeraa Audit Logs-ka.
+        <h2 class="text-xl font-extrabold text-white">Laboratory & Academic Operations</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Faculty portal bridging Subject Teachers, Lab Chairman, and Lab Instructors with real-time equipment auditing.
         </p>
       </div>
 
-      <!-- Users List -->
-      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white">Staff Users Directory (PRD Section 12)</h3>
-          <button onclick="openAddUserModal()" class="px-2.5 py-1 rounded-lg bg-purple-600 text-white text-[10px] font-bold">+ Create User</button>
+      <!-- Quick Action Cards -->
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div onclick="switchView('requests')" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 cursor-pointer space-y-1">
+          <div class="text-orange-400 font-bold">1. Publish Class</div>
+          <p class="text-[11px] text-slate-400">Lecturers request lab sessions & hardware</p>
         </div>
 
-        <div class="space-y-2 text-xs" id="admin-users-list">
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="font-bold text-white">System Administrator</div>
-              <div class="text-[10px] text-slate-400">admin@college.edu • ID: ADM-001</div>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800">ADMIN</span>
-          </div>
+        <div onclick="switchView('assignments')" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 cursor-pointer space-y-1">
+          <div class="text-cyan-400 font-bold">2. Assign Teacher</div>
+          <p class="text-[11px] text-slate-400">Chairman assigns low-load teachers (+1)</p>
+        </div>
 
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="font-bold text-white">Dr. Cabdiraxmaan Cali (Chairman)</div>
-              <div class="text-[10px] text-slate-400">chairman@college.edu • ID: CHM-001</div>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950 text-blue-300 border border-blue-800">CHAIRMAN</span>
-          </div>
+        <div onclick="switchView('my-labs')" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 cursor-pointer space-y-1">
+          <div class="text-emerald-400 font-bold">3. Daily Audit</div>
+          <p class="text-[11px] text-slate-400">Instructors verify & complete lab (-1)</p>
+        </div>
 
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <div>
-              <div class="font-bold text-white">Eng. Sacdiya Maxamuud</div>
-              <div class="text-[10px] text-slate-400">teacher1@college.edu • ID: LT-001</div>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">LAB TEACHER</span>
-          </div>
+        <div onclick="switchView('reports')" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-orange-500/50 cursor-pointer space-y-1">
+          <div class="text-purple-400 font-bold">4. A4 Reports</div>
+          <p class="text-[11px] text-slate-400">Print official inventory & staff reports</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 2. LAB CHAIRMAN DASHBOARD -->
-    <div id="view-LAB_CHAIRMAN" class="role-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-blue-950/40 border border-blue-500/40 space-y-2">
-        <span class="text-xs font-bold uppercase text-blue-300">Lab Chairman Operations</span>
-        <p class="text-xs text-slate-300">
-          U wareeji fadhiyada macallinka haysta culayska ugu yar (Available Low-Load First).
-        </p>
+    <!-- VIEW 2: LAB REQUESTS (SUBJECT TEACHERS) -->
+    <section id="view-requests" class="view-panel hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 space-y-1">
+        <h3 class="text-xs font-bold uppercase text-indigo-300">Course Lecturer Lab Publishing</h3>
+        <p class="text-xs text-slate-300">Publish upcoming practical classes with syllabus links and hardware needs.</p>
       </div>
 
       <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="font-bold text-xs text-white">Publish New Lab Class</div>
+        <form onsubmit="handlePublish(event)" class="space-y-2.5 text-xs">
+          <div>
+            <label class="block text-slate-400 text-[10px] mb-0.5">Course Name *</label>
+            <input type="text" id="req-title" required placeholder="e.g. CSC 312: Database Systems & PostgreSQL" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] mb-0.5">Category *</label>
+            <select id="req-cat" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white">
+              <option>Programming Lab</option>
+              <option>Technical & Cisco Lab</option>
+              <option>Multimedia Studio</option>
+              <option>Cybersecurity Lab</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] mb-0.5">Resource Link / Lab Sheet URL</label>
+            <input type="url" id="req-url" placeholder="https://drive.google.com/... or GitHub" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white">
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs mt-1">
+            Publish Lab Class Request
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 3: LAB CHAIRMAN ASSIGNMENTS -->
+    <section id="view-assignments" class="view-panel hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-blue-950/40 border border-blue-500/40 space-y-1">
+        <h3 class="text-xs font-bold uppercase text-blue-300">Lab Chairman Assignment Suite</h3>
+        <p class="text-xs text-slate-300">Assign incoming course requests to instructors with lowest workload.</p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 text-xs">
         <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white">Pending Course Request</h3>
+          <span class="font-bold text-white">CSC 312: Database Systems</span>
           <span class="px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 text-[9px] font-bold">PENDING</span>
         </div>
-
-        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-2">
-          <div class="font-bold text-white">CSC 312: Database Systems & PostgreSQL</div>
-          <div class="text-[11px] text-slate-400">Lecturer: Ust. Cali Nuur • Req: 25 Workstations</div>
-          <div class="text-[10px] text-cyan-400 font-mono truncate">Resource: https://drive.google.com/folder-db-lab</div>
-
-          <button onclick="assignChairmanSession()" id="chairman-assign-btn" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">
-            Xilsaar Eng. Sacdiya Maxamuud (+1 Load)
-          </button>
-        </div>
+        <p class="text-slate-400 text-[11px]">Lecturer: Prof. Ali Nur • Room: LAB-101 • Shift: Morning</p>
+        <button onclick="assignSessionDemo()" id="btn-assign-demo" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">
+          Assign Eng. Sadiya Mohamud (+1 Load)
+        </button>
       </div>
-    </div>
+    </section>
 
-    <!-- 3. LAB TEACHER DASHBOARD -->
-    <div id="view-LAB_TEACHER" class="role-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2">
-        <span class="text-xs font-bold uppercase text-emerald-300">Lab Teacher Execution & Audit</span>
-        <p class="text-xs text-slate-300">
-          Fuli Daily Hardware Audit oo dhammee fadhiga marka casharku dhamaado.
-        </p>
+    <!-- VIEW 4: MY LABS & DAILY AUDIT -->
+    <section id="view-my-labs" class="view-panel hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-1">
+        <h3 class="text-xs font-bold uppercase text-emerald-300">Lab Instructor Portal</h3>
+        <p class="text-xs text-slate-300">Execute assigned lab sessions, perform daily audits, and mark completed (-1 Load).</p>
       </div>
 
-      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 text-xs">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-white">NET 401: Cisco BGP Routing</span>
-          <span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 text-[9px] font-bold" id="teacher-session-badge">IN-PROGRESS</span>
+          <span class="font-bold text-white">NET 401: Cisco BGP Transit Routing</span>
+          <span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 text-[9px] font-bold" id="badge-lab-status">IN-PROGRESS</span>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/40 text-xs flex items-center justify-between">
-          <span class="text-indigo-300 text-[11px]">Lab Sheet Link:</span>
-          <a href="https://github.com/cisco-labs" target="_blank" class="text-cyan-400 underline font-mono text-[10px]">Furo Link-ga</a>
+        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <span class="text-slate-400">Course Resource:</span>
+          <a href="https://github.com/cisco-labs" target="_blank" class="text-cyan-400 underline font-mono text-[10px]">Open Lab Sheet</a>
         </div>
 
         <div class="space-y-1">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-400">Sacdiya's Live Load:</span>
-            <span class="font-bold text-cyan-300" id="teacher-load-text">1 / 4 Classes</span>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">Instructor Workload:</span>
+            <span class="font-bold text-cyan-300" id="lab-workload-text">1 / 4 Classes</span>
           </div>
           <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-            <div class="bg-cyan-500 h-full rounded-full transition-all duration-300" id="teacher-load-bar" style="width: 25%;"></div>
+            <div id="lab-workload-bar" class="bg-cyan-500 h-full rounded-full transition-all" style="width: 25%;"></div>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
-          <button onclick="openAuditModalMobile()" class="py-2 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold">
-            Daily Audit
+          <button onclick="openDailyAuditModal()" class="py-2 rounded-xl bg-slate-800 text-slate-200 font-bold">
+            Daily Hardware Audit
           </button>
-          <button onclick="completeTeacherLab()" id="teacher-complete-btn" class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">
-            Dhammee (-1 Load)
+          <button onclick="completeLabSession()" id="btn-complete-lab" class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+            Complete (-1 Load)
           </button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 4. SUBJECT TEACHER (LECTURER) DASHBOARD -->
-    <div id="view-SUBJECT_TEACHER" class="role-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/40 space-y-2">
-        <span class="text-xs font-bold uppercase text-cyan-300">Subject Teacher (Lecturer) Portal</span>
-        <p class="text-xs text-slate-300">
-          Daabac codsi lab cusub, lifaaq Google Drive/GitHub link, iyo qalabka loo baahan yahay.
-        </p>
-      </div>
+    <!-- VIEW 5: HARDWARE INVENTORY -->
+    <section id="view-hardware" class="view-panel hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white uppercase">Equipment Inventory (8 Assets)</h3>
+          <span class="text-[10px] text-emerald-400 font-bold">7 Operational</span>
+        </div>
 
-      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-        <h3 class="text-xs font-bold text-white">+ Daabac Fadhi Cusub (Publish Lab)</h3>
-        <form onsubmit="handleLecturerPublish(event)" class="space-y-2 text-xs">
-          <div>
-            <label class="block text-slate-400 text-[10px] mb-0.5">Magaca Maaddada *</label>
-            <input type="text" id="lec-course-input" required placeholder="e.g. CSC 402: Distributed Cloud Systems" class="w-full p-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs">
+        <div class="space-y-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Dell OptiPlex 7090 Micro PC</div>
+              <div class="text-[10px] text-slate-400">LAB-101 • SN-LAB101-PC01</div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
           </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] mb-0.5">Resource Link / Lab Sheet URL *</label>
-            <input type="url" id="lec-link-input" required placeholder="https://drive.google.com/... ama GitHub link" class="w-full p-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs">
-          </div>
-          <button type="submit" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs mt-2">
-            Daabac Codsiga Fadhiga
-          </button>
-        </form>
-      </div>
-    </div>
 
-    <!-- 5. INVENTORY OFFICER DASHBOARD -->
-    <div id="view-INVENTORY_OFFICER" class="role-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-2">
-        <span class="text-xs font-bold uppercase text-amber-300">Inventory Officer Hardware Suite</span>
-        <p class="text-xs text-slate-300">
-          Kormeerka qalabka Dell PCs, Cisco Routers, Switches iyo wareejinta qolalka.
-        </p>
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Cisco 2901 ISR Router</div>
+              <div class="text-[10px] text-slate-400">LAB-204 • SN-CISCO-01</div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-white">Catalyst 2960-X Switch</div>
+              <div class="text-[10px] text-slate-400">LAB-204 • Port 12 Alert</div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-950 text-rose-300 border border-rose-600/40 animate-pulse">MAINTENANCE</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 6: CATEGORIES & ROOMS CONFIGURATION -->
+    <section id="view-categories" class="view-panel hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/40 space-y-1">
+        <h3 class="text-xs font-bold uppercase text-cyan-300">Category & Room Manager</h3>
+        <p class="text-xs text-slate-300">Add, edit, or configure laboratory categories and workstation setups.</p>
       </div>
 
       <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
-        <div class="flex items-center justify-between font-bold text-white pb-2 border-b border-slate-800">
-          <span>Physical Assets in Lab Rooms</span>
-          <span class="text-cyan-400">8 Assets</span>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">Programming Lab</span>
+            <span class="text-cyan-300 font-mono text-[10px]">30 PCs</span>
+          </div>
+          <div class="text-[11px] text-slate-400">Room: LAB-101 • Dell OptiPlex Core i7, Node.js, PostgreSQL</div>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-          <div>
-            <div class="font-bold text-white">Dell OptiPlex 7090 PC</div>
-            <div class="text-[10px] text-slate-400">LAB-101 (Programming)</div>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">Technical & Cisco Lab</span>
+            <span class="text-amber-300 font-mono text-[10px]">24 PCs</span>
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
+          <div class="text-[11px] text-slate-400">Room: LAB-204 • Cisco 2901 Routers, Catalyst 2960 Switches</div>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-          <div>
-            <div class="font-bold text-white">Cisco 2901 ISR Router</div>
-            <div class="text-[10px] text-slate-400">LAB-204 (Cisco Networks)</div>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">Multimedia Studio</span>
+            <span class="text-purple-300 font-mono text-[10px]">20 PCs</span>
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-600/40">OPERATIONAL</span>
-        </div>
-
-        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-          <div>
-            <div class="font-bold text-white">Catalyst 2960-X Switch</div>
-            <div class="text-[10px] text-slate-400">LAB-204 (Port 12 Alert)</div>
-          </div>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-950 text-rose-300 border border-rose-600/40">MAINTENANCE</span>
+          <div class="text-[11px] text-slate-400">Room: Studio A • Epson 4K Projector, GPU Workstations</div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 6. COLLEGE MANAGEMENT DASHBOARD -->
-    <div id="view-COLLEGE_MANAGEMENT" class="role-view hidden space-y-4">
-      <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 space-y-2">
-        <span class="text-xs font-bold uppercase text-rose-300">College Management Analytics</span>
-        <p class="text-xs text-slate-300">
-          Executive Read-Only Overview: Tirakoobka labs-ka, macalimiinta, iyo $0/mo Free Tier status.
-        </p>
+    <!-- VIEW 7: STAFF USERS MANAGEMENT (SUPER ADMIN) -->
+    <section id="view-users" class="view-panel hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-purple-950/40 border border-purple-500/40 space-y-1">
+        <h3 class="text-xs font-bold uppercase text-purple-300">Staff Accounts & Access Control</h3>
+        <p class="text-xs text-slate-300">Super Admin can register new users, change roles, or delete accounts.</p>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 text-xs">
-        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-          <span class="text-slate-400">Total Labs</span>
-          <div class="text-2xl font-bold text-white">3 Classes</div>
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-xs" id="users-container">
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Dr. Abdishakur Mohamed</div>
+            <div class="text-[10px] text-slate-400">admin@college.edu • ID: ZIC-ADM-01</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">ADMIN</span>
         </div>
-        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-          <span class="text-slate-400">Server Overhead</span>
-          <div class="text-2xl font-bold text-emerald-400">$0.00 / mo</div>
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Dr. Abdirahman Ali (Chairman)</div>
+            <div class="text-[10px] text-slate-400">chairman@college.edu • ID: ZIC-CHM-01</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-950 text-blue-300 border border-blue-800">CHAIRMAN</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-white">Eng. Sadiya Mohamud</div>
+            <div class="text-[10px] text-slate-400">labteacher@college.edu • ID: ZIC-INS-01</div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">LAB TEACHER</span>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- VIEW 8: A4 PRINTABLE REPORTS (ZIC OFFICIAL) -->
+    <section id="view-reports" class="view-panel hidden space-y-4">
+      <div class="no-print flex items-center justify-between p-4 rounded-2xl bg-slate-900 border border-slate-800">
+        <div>
+          <h3 class="font-bold text-xs text-white">Official A4 Printable Report</h3>
+          <p class="text-[10px] text-slate-400">Prints with clean Zoom International College letterhead</p>
+        </div>
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-orange-600 text-white font-bold text-xs shadow">
+          🖨️ Print A4 Document
+        </button>
+      </div>
+
+      <!-- Printable A4 Card -->
+      <div class="a4-print-card p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4 text-xs">
+        <div class="a4-letterhead border-b-2 border-orange-500 pb-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img src="/images/zoom_college_logo.jpg" alt="Logo" class="h-12 w-12 rounded-full p-0.5 bg-white ring-2 ring-orange-500" onerror="this.style.display='none'">
+            <div>
+              <div class="font-black text-sm text-white uppercase">ZOOM INTERNATIONAL COLLEGE (ZIC)</div>
+              <div class="text-[10px] text-orange-400">Faculty of Information Technology & Labs</div>
+            </div>
+          </div>
+          <div class="text-right text-[10px] text-slate-400">
+            <div>Date: 2026-08-08</div>
+            <div class="text-emerald-400 font-bold">Authorized Sign-Off</div>
+          </div>
+        </div>
+
+        <table class="w-full text-left text-xs border border-slate-800">
+          <thead>
+            <tr class="bg-slate-950 text-slate-300 font-bold border-b border-slate-800">
+              <th class="p-2.5">Asset Description</th>
+              <th class="p-2.5">Serial #</th>
+              <th class="p-2.5">Lab Room</th>
+              <th class="p-2.5 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300 text-[11px]">
+            <tr>
+              <td class="p-2.5 font-bold text-white">Dell OptiPlex 7090 PC</td>
+              <td class="p-2.5 font-mono">SN-LAB101-PC01</td>
+              <td class="p-2.5">LAB-101</td>
+              <td class="p-2.5 text-right text-emerald-400 font-bold">OPERATIONAL</td>
+            </tr>
+            <tr>
+              <td class="p-2.5 font-bold text-white">Cisco 2901 ISR Router</td>
+              <td class="p-2.5 font-mono">SN-CISCO-01</td>
+              <td class="p-2.5">LAB-204</td>
+              <td class="p-2.5 text-right text-emerald-400 font-bold">OPERATIONAL</td>
+            </tr>
+            <tr>
+              <td class="p-2.5 font-bold text-white">Catalyst 2960-X Switch</td>
+              <td class="p-2.5 font-mono">SN-SW-CAT2960</td>
+              <td class="p-2.5">LAB-204</td>
+              <td class="p-2.5 text-right text-rose-400 font-bold">MAINTENANCE</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VIEW 9: MY PROFILE & SETTINGS -->
+    <section id="view-profile" class="view-panel hidden space-y-4">
+      <div class="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-3 text-xs">
+        <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+          <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-indigo-600 flex items-center justify-center font-bold text-white text-base">
+            DA
+          </div>
+          <div>
+            <div class="font-bold text-sm text-white" id="profile-name">Dr. Abdishakur Mohamed</div>
+            <div class="text-[10px] text-slate-400">admin@college.edu • ID: ZIC-ADM-01</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400">Department:</span>
+            <div class="font-bold text-white">Executive Administration</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400">Shift Window:</span>
+            <div class="font-bold text-amber-300">Morning (07:00 AM)</div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+          <span class="text-[10px] text-slate-400 font-bold uppercase">Specialized Skills:</span>
+          <div class="text-cyan-300 font-mono text-[11px]">System Governance, Staff Management, Database Architecture</div>
+        </div>
+      </div>
+    </section>
 
   </main>
 
-  <!-- JAVASCRIPT ROLE SWITCHING & INTERACTIONS -->
-  <script>
-    function switchRole(roleName) {
-      document.querySelectorAll('.role-view').forEach(v => v.classList.add('hidden'));
-      const activeView = document.getElementById('view-' + roleName);
-      if (activeView) activeView.classList.remove('hidden');
+  <!-- ============================================================== -->
+  <!-- 4. MODAL: DAILY HARDWARE AUDIT (COMPLETE / INCOMPLETE) -->
+  <!-- ============================================================== -->
+  <div id="modal-audit" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span class="font-bold text-xs text-white">Daily Equipment Audit</span>
+        <button onclick="closeDailyAuditModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
 
-      document.querySelectorAll('.role-btn').forEach(btn => {
-        btn.classList.remove('bg-purple-600', 'bg-cyan-600', 'bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-rose-600', 'text-white', 'shadow');
+      <div class="space-y-1.5 text-xs">
+        <label class="block font-semibold text-slate-300">Audit Status *</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="setAuditState('COMPLETE')" id="btn-audit-complete" class="p-2.5 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 font-bold">
+            ✓ COMPLETE
+          </button>
+          <button type="button" onclick="setAuditState('INCOMPLETE')" id="btn-audit-incomplete" class="p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold">
+            ⚠ INCOMPLETE
+          </button>
+        </div>
+      </div>
+
+      <div id="audit-reason-box" class="hidden space-y-1 text-xs">
+        <label class="block font-semibold text-rose-300">Reason (Mandatory if Incomplete) *</label>
+        <textarea id="audit-reason-input" rows="2" placeholder="e.g. 2 Optical mice damaged, patch cable broken..." class="w-full p-2 rounded-xl bg-slate-950 border border-rose-800 text-white"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800 text-xs">
+        <button onclick="closeDailyAuditModal()" class="px-3 py-1.5 text-slate-400">Cancel</button>
+        <button onclick="submitAuditAction()" class="px-4 py-1.5 rounded-xl bg-orange-600 text-white font-bold">Submit Audit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APP LOGIC & PERSISTENT LOCALSTORAGE -->
+  <script>
+    let activeAuditStatus = 'COMPLETE';
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      const activeEl = document.getElementById('view-' + viewId);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-orange-600', 'text-white', 'shadow-md');
         btn.classList.add('text-slate-400');
       });
 
-      const btn = document.getElementById('role-btn-' + roleName);
-      if (btn) {
-        btn.classList.add('bg-purple-600', 'text-white', 'shadow');
-        btn.classList.remove('text-slate-400');
+      const currentNavBtn = document.getElementById('nav-' + viewId);
+      if (currentNavBtn) {
+        currentNavBtn.classList.add('bg-orange-600', 'text-white', 'shadow-md');
+        currentNavBtn.classList.remove('text-slate-400');
       }
     }
 
-    function assignChairmanSession() {
-      const btn = document.getElementById('chairman-assign-btn');
-      btn.innerText = '✓ Waxaa loo xilsaaray Eng. Sacdiya (+1 Load)!';
+    function toggleMobileDrawer() {
+      // Toggle sidebar view
+      switchView('overview');
+    }
+
+    function openDailyAuditModal() {
+      document.getElementById('modal-audit').classList.remove('hidden');
+      document.getElementById('modal-audit').classList.add('flex');
+    }
+
+    function closeDailyAuditModal() {
+      document.getElementById('modal-audit').classList.add('hidden');
+      document.getElementById('modal-audit').classList.remove('flex');
+    }
+
+    function setAuditState(status) {
+      activeAuditStatus = status;
+      const btnC = document.getElementById('btn-audit-complete');
+      const btnI = document.getElementById('btn-audit-incomplete');
+      const reason = document.getElementById('audit-reason-box');
+
+      if (status === 'COMPLETE') {
+        btnC.className = 'p-2.5 rounded-xl border border-emerald-500 bg-emerald-950/40 text-emerald-300 font-bold';
+        btnI.className = 'p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold';
+        reason.classList.add('hidden');
+      } else {
+        btnC.className = 'p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-bold';
+        btnI.className = 'p-2.5 rounded-xl border border-rose-500 bg-rose-950/40 text-rose-300 font-bold';
+        reason.classList.remove('hidden');
+      }
+    }
+
+    function submitAuditAction() {
+      const reason = document.getElementById('audit-reason-input').value;
+      if (activeAuditStatus === 'INCOMPLETE' && (!reason || reason.trim().length < 5)) {
+        alert('Please specify the reason why the audit is incomplete (minimum 5 characters).');
+        return;
+      }
+      closeDailyAuditModal();
+      alert('Daily audit recorded successfully with status: ' + activeAuditStatus);
+    }
+
+    function assignSessionDemo() {
+      const btn = document.getElementById('btn-assign-demo');
+      btn.innerText = '✓ Assigned to Eng. Sadiya (+1 Load)';
       btn.className = 'w-full py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs';
       btn.disabled = true;
     }
 
-    function completeTeacherLab() {
-      const badge = document.getElementById('teacher-session-badge');
-      const text = document.getElementById('teacher-load-text');
-      const bar = document.getElementById('teacher-load-bar');
-      const btn = document.getElementById('teacher-complete-btn');
-
-      badge.className = 'px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 text-[9px] font-bold';
-      badge.innerText = 'COMPLETED';
-      text.innerText = '0 / 4 Classes (Capacity Restored)';
-      text.className = 'font-bold text-emerald-400';
-      bar.style.width = '0%';
-      btn.innerText = 'Fadhigu Wuu Dhamaaday (-1 Load)';
-      btn.disabled = true;
-      btn.className = 'py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold';
+    function completeLabSession() {
+      document.getElementById('badge-lab-status').innerText = 'COMPLETED';
+      document.getElementById('badge-lab-status').className = 'px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 text-[9px] font-bold';
+      document.getElementById('lab-workload-text').innerText = '0 / 4 Classes (Capacity Restored)';
+      document.getElementById('lab-workload-bar').style.width = '0%';
+      document.getElementById('btn-complete-lab').innerText = 'Completed (-1 Load)';
+      document.getElementById('btn-complete-lab').disabled = true;
+      document.getElementById('btn-complete-lab').className = 'py-2 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs';
     }
 
-    function handleLecturerPublish(e) {
+    function handlePublish(e) {
       e.preventDefault();
-      const course = document.getElementById('lec-course-input').value;
-      alert(`Fadhiga ${course} si guul leh ayaa loo daabacay (PENDING)!`);
-      document.getElementById('lec-course-input').value = '';
-      document.getElementById('lec-link-input').value = '';
+      const title = document.getElementById('req-title').value;
+      alert('Lab class "' + title + '" successfully published (PENDING ASSIGNMENT)!');
+      document.getElementById('req-title').value = '';
+      document.getElementById('req-url').value = '';
+    }
+
+    function performLogout() {
+      try {
+        localStorage.removeItem('zic_auth_session');
+      } catch(e) {}
+      alert('You have signed out. Refresh to log back in.');
     }
   </script>
 </body>

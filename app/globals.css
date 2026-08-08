@@ -5,6 +5,9 @@
 :root {
   --background: #020617;
   --foreground: #f8fafc;
+  --zic-navy: #0f172a;
+  --zic-orange: #ea580c;
+  --zic-blue: #2563eb;
 }
 
 body {
@@ -14,20 +17,63 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism utility */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* Custom glowing pulse */
-@keyframes status-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.15); }
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-.animate-status-pulse {
-  animation: status-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* A4 Print Styles for Official College Reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide navigation, headers, and buttons during printing */
+  header, aside, .no-print, nav, button, .role-btn, .mobile-drawer {
+    display: none !important;
+  }
+
+  /* Ensure report container expands to full A4 page width */
+  .a4-print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .a4-print-container table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .a4-print-container th,
+  .a4-print-container td {
+    border: 1px solid #cbd5e1 !important;
+    color: #000000 !important;
+    padding: 8px !important;
+    background: transparent !important;
+  }
+
+  .a4-print-container th {
+    background-color: #f1f5f9 !important;
+    font-weight: bold !important;
+  }
+
+  .a4-letterhead {
+    display: block !important;
+    border-bottom: 2px solid #ea580c !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 20px !important;
+  }
 }
